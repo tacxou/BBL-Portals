@@ -1,0 +1,23 @@
+BBL Portals
+
+# 1.0.0
+
+- Initial release
+
+# Changes and fixed from Portal JS and Custom Portal API
+- Color tint now works correctly
+- Portals now longer broken when hit by flowing water
+- No longer crashes when flint and steel is used in world
+- Portal color now correct when inside the portal
+- Now longer crashes on startup
+- Added portal block translation
+- Added Sodium support for portal rendering
+
+# New Features
+- Jade support to show the dimension that you will be teleported to when looking at the portal
+
+
+//Pending Features
+
+Instead of the warp effect like nether portal could you make it animate like fade to black or smfh
+Exit portal should respect the portal entrance size

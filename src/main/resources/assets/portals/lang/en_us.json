@@ -1,0 +1,5 @@
+{
+  "block.portals.custom_portal": "Portal",
+  "config.jade.plugin_portals.portal_name_provider": "Portal Name Provider",
+  "tooltip.portal.jade.to": "To %s"
+}

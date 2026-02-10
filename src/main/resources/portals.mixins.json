@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "com.benbenlaw.portals.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractFireMixin",
+    "FlowingFluidMixin",
+    "FluidBlockPlacedMixin",
+    "PortalManagerAccessor",
+    "PotionEntityMixin"
+  ],
+  "client": [
+    "client.ChunkRendererRegionAccessor",
+    "client.InGameHudMixin",
+    "client.LevelSliceAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+
+}
