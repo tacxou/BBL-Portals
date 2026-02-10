@@ -1,5 +1,7 @@
 package com.benbenlaw.portals.portal.frame;
 
+import com.benbenlaw.portals.block.CustomPortalBlock;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
@@ -94,19 +96,27 @@ public class FlatPortalAreaHelper extends PortalFrameTester {
 
     public void lightPortal(Block frameBlock) {
         PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(frameBlock);
-        BlockState blockState = CustomPortalHelper.blockWithAxis(
-            link != null ? link.getPortalBlock().defaultBlockState() : PortalsBlocks.CUSTOM_PORTAL.get().defaultBlockState(),
-            Direction.Axis.Y
-        );
+
+        BlockState blockState =
+                (link != null
+                        ? link.getPortalBlock().defaultBlockState()
+                        : PortalsBlocks.CUSTOM_PORTAL.get().defaultBlockState())
+                        .setValue(CustomPortalBlock.AXIS, Direction.Axis.Y)
+                        .setValue(
+                                CustomPortalBlock.PORTAL_TEXTURES,
+                                link != null
+                                        ? link.portalTexture
+                                        : PortalTextures.DEFAULT
+                        );
+
         BlockPos.betweenClosed(
-            this.lowerCorner,
-            this.lowerCorner.relative(Direction.Axis.X, this.xSize - 1)
-                .relative(
-                    Direction.Axis.Z,
-                    this.zSize - 1
-                )
-        ).forEach(blockPos -> this.world.setBlock(blockPos, blockState, 18));
+                this.lowerCorner,
+                this.lowerCorner
+                        .relative(Direction.Axis.X, this.xSize - 1)
+                        .relative(Direction.Axis.Z, this.zSize - 1)
+        ).forEach(pos -> this.world.setBlock(pos, blockState, 18));
     }
+
 
     @Override
     public void createPortal(Level world, BlockPos pos, BlockState frameBlock, Direction.Axis axis) {

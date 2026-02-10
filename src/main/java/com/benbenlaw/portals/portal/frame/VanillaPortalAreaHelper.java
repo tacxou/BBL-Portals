@@ -1,5 +1,7 @@
 package com.benbenlaw.portals.portal.frame;
 
+import com.benbenlaw.portals.block.CustomPortalBlock;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
@@ -196,10 +198,18 @@ public class VanillaPortalAreaHelper extends PortalFrameTester {
 
     public void lightPortal(Block frameBlock) {
         PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(frameBlock);
-        BlockState blockState = CustomPortalHelper.blockWithAxis(
-            link != null ? link.getPortalBlock().defaultBlockState() : PortalsBlocks.CUSTOM_PORTAL.get().defaultBlockState(),
-            axis
-        );
+
+        BlockState blockState =
+                (link != null
+                        ? link.getPortalBlock().defaultBlockState()
+                        : PortalsBlocks.CUSTOM_PORTAL.get().defaultBlockState())
+                        .setValue(CustomPortalBlock.AXIS, axis)
+                        .setValue(
+                                CustomPortalBlock.PORTAL_TEXTURES,
+                                link != null
+                                        ? link.portalTexture
+                                        : PortalTextures.DEFAULT
+                        );
         BlockPos.betweenClosed(
             this.lowerCorner,
             this.lowerCorner.relative(Direction.UP, this.height - 1).relative(this.axis, this.width - 1)

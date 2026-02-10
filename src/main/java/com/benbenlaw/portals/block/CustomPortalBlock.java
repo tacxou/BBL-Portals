@@ -52,16 +52,15 @@ import java.util.List;
 public class CustomPortalBlock extends Block implements Portal {
 
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    public static final EnumProperty<PortalTextures> PORTAL_TEXTURES = EnumProperty.create("texture", PortalTextures.class);
 
     protected static final VoxelShape X_SHAPE = Block.box(0.0D, 0.0D, 6.0D, 16.0D, 16.0D, 10.0D);
-
     protected static final VoxelShape Z_SHAPE = Block.box(6.0D, 0.0D, 0.0D, 10.0D, 16.0D, 16.0D);
-
     protected static final VoxelShape Y_SHAPE = Block.box(0.0D, 6.0D, 0.0D, 16.0D, 10.0D, 16.0D);
 
     public CustomPortalBlock(Properties settings) {
         super(settings);
-        this.registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.X));
+        this.registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.X).setValue(PORTAL_TEXTURES, PortalTextures.DEFAULT));
     }
 
     @Override
@@ -111,7 +110,7 @@ public class CustomPortalBlock extends Block implements Portal {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS);
+        builder.add(AXIS, PORTAL_TEXTURES);
     }
 
     @Override
@@ -135,24 +134,29 @@ public class CustomPortalBlock extends Block implements Portal {
         }
 
         // Spawn particles
-        for (int i = 0; i < 4; i++) {
-            double x = pos.getX() + source.nextDouble();
-            double y = pos.getY() + source.nextDouble();
-            double z = pos.getZ() + source.nextDouble();
-            double dx = (source.nextFloat() - 0.5) * 0.5;
-            double dy = (source.nextFloat() - 0.5) * 0.5;
-            double dz = (source.nextFloat() - 0.5) * 0.5;
-            int j = source.nextInt(2) * 2 - 1;
 
-            if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
-                x = pos.getX() + 0.5 + 0.25 * j;
-                dx = source.nextFloat() * 2.0F * j;
-            } else {
-                z = pos.getZ() + 0.5 + 0.25 * j;
-                dz = source.nextFloat() * 2.0F * j;
+        boolean spawnPortalParticles = CustomPortalHelper.showParticles(level, pos);
+
+        if (spawnPortalParticles) {
+            for (int i = 0; i < 4; i++) {
+                double x = pos.getX() + source.nextDouble();
+                double y = pos.getY() + source.nextDouble();
+                double z = pos.getZ() + source.nextDouble();
+                double dx = (source.nextFloat() - 0.5) * 0.5;
+                double dy = (source.nextFloat() - 0.5) * 0.5;
+                double dz = (source.nextFloat() - 0.5) * 0.5;
+                int j = source.nextInt(2) * 2 - 1;
+
+                if (!level.getBlockState(pos.west()).is(this) && !level.getBlockState(pos.east()).is(this)) {
+                    x = pos.getX() + 0.5 + 0.25 * j;
+                    dx = source.nextFloat() * 2.0F * j;
+                } else {
+                    z = pos.getZ() + 0.5 + 0.25 * j;
+                    dz = source.nextFloat() * 2.0F * j;
+                }
+
+                level.addParticle(new DustParticleOptions(new Vector3f(r, g, b), 1.0F), x, y, z, dx, dy, dz);
             }
-
-            level.addParticle(new DustParticleOptions(new Vector3f(r, g, b), 1.0F), x, y, z, dx, dy, dz);
         }
     }
 

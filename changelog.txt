@@ -12,10 +12,12 @@ BBL Portals
 - Now longer crashes on startup
 - Added portal block translation
 - Added Sodium support for portal rendering
+- Changed particles to be a lot more natural and tint the same colors and the portal
 
 # New Features
 - Jade support to show the dimension that you will be teleported to when looking at the portal
-
+- .showParticles(true/false) optional defaults to true, allows you to disable the portal particles if you want
+- .portalTexture("default"/"nether"/"molten") optional defaults to default, allows you to change the portal texture to either the default one, the nether portal one or a molten one. All textures respect the portal color tint
 
 //Pending Features
 

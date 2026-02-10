@@ -2,6 +2,7 @@ package com.benbenlaw.portals.api;
 
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.block.CustomPortalBlock;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.event.PortalIgniteEvent;
 import com.benbenlaw.portals.event.PortalPreIgniteEvent;
 import com.benbenlaw.portals.event.PortalSoundEvent;
@@ -251,6 +252,22 @@ public class CustomPortalBuilder {
      */
     public CustomPortalBuilder registerIgniteEvent(PortalIgniteEvent event) {
         portalLink.setPortalIgniteEvent(event);
+        return this;
+    }
+
+    /**
+     * Texture that is used for the portal, can be deafult, nether and molten.
+     */
+    public CustomPortalBuilder portalTexture(PortalTextures texture) {
+        portalLink.portalTexture = texture;
+        return this;
+    }
+
+    /**
+     * Texture that is used for the portal, can be deafult, nether and molten.
+     */
+    public CustomPortalBuilder showParticles(boolean showParticles) {
+        portalLink.showParticles = showParticles;
         return this;
     }
 }

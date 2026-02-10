@@ -1,6 +1,7 @@
 package com.benbenlaw.portals;
 
 import com.benbenlaw.portals.api.CustomPortalBuilder;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.integration.kubejs.PortalBuilder;
 import com.benbenlaw.portals.integration.kubejs.PortalEvents;
@@ -79,6 +80,7 @@ public class Portals{
                     .destDimID(Level.END.location())
                     .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
                     .tintColor(45, 65, 101)
+                    .portalTexture(PortalTextures.MOLTEN)
                     .registerPortal();
         });
 
@@ -89,6 +91,7 @@ public class Portals{
                     .lightWithFluid(Fluids.WATER)
                     .destDimID(Level.NETHER.location())
                     .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
+                    .showParticles(false)
                     .tintColor(0x00FF50)
                     .registerPortal();
         });

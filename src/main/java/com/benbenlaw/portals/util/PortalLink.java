@@ -2,6 +2,7 @@ package com.benbenlaw.portals.util;
 
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.block.CustomPortalBlock;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.event.PortalEvent;
 import com.benbenlaw.portals.event.PortalIgniteEvent;
@@ -24,11 +25,15 @@ public class PortalLink {
 
     private Supplier<CustomPortalBlock> portalBlock = PortalsBlocks.CUSTOM_PORTAL;
 
+    public PortalTextures portalTexture = PortalTextures.DEFAULT;
+
     public ResourceLocation dimID;
 
     public ResourceLocation returnDimID = ResourceLocation.withDefaultNamespace("overworld");
 
     public boolean onlyIgnitableInReturnDim = false;
+
+    public boolean showParticles = true;
 
     public int colorID;
 
@@ -123,6 +128,10 @@ public class PortalLink {
 
     public int getTintColor() {
         return colorID;
+    }
+
+    public boolean showParticles() {
+        return showParticles;
     }
 
     public ResourceLocation fromDimension() {

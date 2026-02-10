@@ -1,13 +1,15 @@
 {
   "variants": {
-    "axis=x": {
-      "model": "portals:block/custom_portal_ns"
-    },
-    "axis=z": {
-      "model": "portals:block/custom_portal_ew"
-    },
-    "axis=y": {
-      "model": "portals:block/custom_portal_flat"
-    }
+    "axis=x,texture=default": { "model": "portals:block/default/custom_portal_ns" },
+    "axis=y,texture=default": { "model": "portals:block/default/custom_portal_flat" },
+    "axis=z,texture=default": { "model": "portals:block/default/custom_portal_ew" },
+
+    "axis=x,texture=nether":  { "model": "portals:block/nether/custom_portal_ns" },
+    "axis=y,texture=nether":  { "model": "portals:block/nether/custom_portal_flat" },
+    "axis=z,texture=nether":  { "model": "portals:block/nether/custom_portal_ew" },
+
+    "axis=x,texture=end":     { "model": "portals:block/end/custom_portal_ns" },
+    "axis=y,texture=end":     { "model": "portals:block/end/custom_portal_flat" },
+    "axis=z,texture=end":     { "model": "portals:block/end/custom_portal_ew" }
   }
 }

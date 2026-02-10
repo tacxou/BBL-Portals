@@ -53,7 +53,10 @@ public class PortalPlacer {
 
 
 
-        PortalFrameTester tester = link.getFrameTester().createInstanceOfPortalFrameTester();
+        PortalFrameTester tester =
+                link.getFrameTester()
+                        .createInstanceOfPortalFrameTester()
+                        .withPortalLink(link);
 
         Optional<PortalFrameTester> optional =
                 tester.getNewPortal(world, pos, Direction.Axis.X, foundationBlock);

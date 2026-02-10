@@ -32,9 +32,15 @@ public abstract class PortalFrameTester {
     protected int foundPortalBlocks;
 
     protected LevelAccessor world;
+    protected PortalLink portalLink;
 
     protected int forcedWidth = -1;
     protected int forcedHeight = -1;
+
+    public PortalFrameTester withPortalLink(PortalLink link) {
+        this.portalLink = link;
+        return this;
+    }
 
     public void setForcedSize(int width, int height) {
         this.forcedWidth = width;

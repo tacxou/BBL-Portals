@@ -103,4 +103,16 @@ public class CustomPortalHelper {
 
         return 0x7F00FF;
     }
+
+    public static boolean showParticles(Level world, BlockPos pos) {
+        Block portalBase = getPortalBase(world, pos);
+        if (portalBase == Blocks.AIR) return true;
+
+        PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(portalBase);
+        if (link != null) {
+            return link.showParticles();
+        }
+
+        return true;
+    }
 }

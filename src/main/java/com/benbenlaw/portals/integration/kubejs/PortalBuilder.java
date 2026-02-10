@@ -3,6 +3,7 @@ package com.benbenlaw.portals.integration.kubejs;
 import com.benbenlaw.portals.api.BiHolder;
 import com.benbenlaw.portals.api.CustomPortalBuilder;
 import com.benbenlaw.portals.block.CustomPortalBlock;
+import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.event.PortalSoundEvent;
 import com.benbenlaw.portals.integration.kubejs.context.PortalBlockContext;
@@ -184,6 +185,18 @@ public class PortalBuilder implements KubeStartupEvent {
         @Info("(Optional) On a random tick, do something (example is nether portal spawning entities)")
         public PortalMaker onRandomTick(Consumer<PortalBlockContext> context) {
             this.randomConsumer = context;
+            return this;
+        }
+
+        @Info("(Optional) Choose a portal texture values include default, nether and molten")
+        public PortalMaker portalTexture(String texture) {
+            this.builder.portalTexture(PortalTextures.valueOf(texture.toUpperCase()));
+            return this;
+        }
+
+        @Info("(Optional) Whether the portal shows particles, default true")
+        public PortalMaker showParticles(Boolean showParticles) {
+            this.builder.showParticles(showParticles);
             return this;
         }
 
