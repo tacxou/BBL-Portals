@@ -4,6 +4,7 @@ BBL Portals
 - Added JEI support for custom portals, shows size, type, frame and ignition method
 - All portals will be shown in JEI, unless using showInJEI(false) on the portal builder and kubejs builder
 - Disabled default portals added by this mod unless in dev
+- Enabled curseforge and modrinth auto updating
 
 # 1.0.0
 
