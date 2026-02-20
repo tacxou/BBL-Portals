@@ -1,5 +1,8 @@
 BBL Portals
 
+# 1.1.1
+- Fixed custom portals not showing in JEI when used in KubeJS
+
 # 1.1.0
 - Added JEI support for custom portals, shows size, type, frame and ignition method
 - All portals will be shown in JEI, unless using showInJEI(false) on the portal builder and kubejs builder
