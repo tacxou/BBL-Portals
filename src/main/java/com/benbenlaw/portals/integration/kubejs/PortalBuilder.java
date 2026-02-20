@@ -200,10 +200,17 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
+        @Info("(Optional) Whether the portal shows in JEI, default true")
+        public PortalMaker showInJEI(Boolean showInJEI) {
+            this.builder.showInJEI(showInJEI);
+            return this;
+        }
+
         @HideFromJS
         public void register() {
             //this.builder.customPortalBlock(() -> PortalsBlocks.CUSTOM_PORTAL.get().withConsumer(this.randomConsumer));
             this.builder.registerPortal();
         }
+
     }
 }

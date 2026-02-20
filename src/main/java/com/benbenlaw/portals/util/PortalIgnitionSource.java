@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
@@ -84,5 +85,27 @@ public class PortalIgnitionSource {
                 a -> a.is(FluidTags.LAVA)
             )
             .isPresent();
+    }
+
+    public ItemStack getIgnetionItemStack() {
+        if (sourceType == SourceType.USEITEM) {
+            return new ItemStack(BuiltInRegistries.ITEM.get(ignitionSourceID));
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public ItemStack getFluidIgnitionAsBucket() {
+        if (sourceType == SourceType.FLUID) {
+            Fluid fluid = BuiltInRegistries.FLUID.get(ignitionSourceID);
+            return fluid.getBucket().getDefaultInstance();
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public ItemStack getBlockPlacedAsItemStack() {
+        if (sourceType == SourceType.BLOCKPLACED) {
+            return new ItemStack(BuiltInRegistries.BLOCK.get(ignitionSourceID).asItem());
+        }
+        return ItemStack.EMPTY;
     }
 }

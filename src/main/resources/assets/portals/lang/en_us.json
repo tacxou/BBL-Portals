@@ -1,5 +1,15 @@
 {
   "block.portals.custom_portal": "Portal",
   "config.jade.plugin_portals.portal_name_provider": "Portal Name Provider",
-  "tooltip.portal.jade.to": "To %s"
+  "tooltip.portal.jade.to": "To %s",
+
+  "category.portals.portal_recipe": "Portal",
+
+  "portals.jei.tooltip.rotate": "Portal Size: %s, %s",
+  "portals.jei.tooltip.corners": "Corners not required",
+  "portals.jei.tooltip.flat": "Flat Portal",
+  "portals.jei.tooltip.nether": "Standing Portal",
+  "portals.jei.tooltip.item_ignition": "Right Click with item to ignite the portal",
+  "portals.jei.tooltip.fluid_ignition": "Consumes fluid to ignite the portal",
+  "portals.jei.tooltip.place_block_ignition": "Place Block to ignite the portal"
 }

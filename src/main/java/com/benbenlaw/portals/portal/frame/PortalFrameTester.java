@@ -34,17 +34,9 @@ public abstract class PortalFrameTester {
     protected LevelAccessor world;
     protected PortalLink portalLink;
 
-    protected int forcedWidth = -1;
-    protected int forcedHeight = -1;
-
     public PortalFrameTester withPortalLink(PortalLink link) {
         this.portalLink = link;
         return this;
-    }
-
-    public void setForcedSize(int width, int height) {
-        this.forcedWidth = width;
-        this.forcedHeight = height;
     }
 
     public static boolean validStateInsidePortal(BlockState blockState, HashSet<Block> foundations) {
@@ -93,10 +85,9 @@ public abstract class PortalFrameTester {
     public abstract void createPortal(Level world, BlockPos pos, BlockState frameBlock, Direction.Axis axis);
 
     public boolean isRequestedSize(int attemptWidth, int attemptHeight) {
-        if (forcedWidth > 0 && forcedHeight > 0) {
-            return attemptWidth == forcedWidth && attemptHeight == forcedHeight;
+        if (portalLink.forcedWidth > 0 && portalLink.forcedHeight > 0) {
+            return attemptWidth == portalLink.forcedWidth && attemptHeight == portalLink.forcedHeight;
         }
-        // fallback to normal check
         return attemptWidth == getRectangle().axis1Size && attemptHeight == getRectangle().axis2Size;
     }
     public abstract BlockUtil.FoundRectangle getRectangle();

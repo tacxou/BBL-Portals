@@ -256,7 +256,7 @@ public class CustomPortalBuilder {
     }
 
     /**
-     * Texture that is used for the portal, can be deafult, nether and molten.
+     * Texture that is used for the portal, can be default, nether and molten.
      */
     public CustomPortalBuilder portalTexture(PortalTextures texture) {
         portalLink.portalTexture = texture;
@@ -264,10 +264,19 @@ public class CustomPortalBuilder {
     }
 
     /**
-     * Texture that is used for the portal, can be deafult, nether and molten.
+     * If a particle should be shown from the portal.
      */
     public CustomPortalBuilder showParticles(boolean showParticles) {
         portalLink.showParticles = showParticles;
         return this;
     }
+
+    /**
+     * Whether the portal shows in JEI, by default all portals will show.
+     */
+    public CustomPortalBuilder showInJEI(boolean showInJEI) {
+        portalLink.showInJEI = showInJEI;
+        return this;
+    }
+
 }

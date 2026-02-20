@@ -23,7 +23,7 @@ public class PortalLink {
 
     public PortalIgnitionSource portalIgnitionSource = PortalIgnitionSource.FIRE;
 
-    private Supplier<CustomPortalBlock> portalBlock = PortalsBlocks.CUSTOM_PORTAL;
+    public Supplier<CustomPortalBlock> portalBlock = PortalsBlocks.CUSTOM_PORTAL;
 
     public PortalTextures portalTexture = PortalTextures.DEFAULT;
 
@@ -34,6 +34,8 @@ public class PortalLink {
     public boolean onlyIgnitableInReturnDim = false;
 
     public boolean showParticles = true;
+
+    public boolean showInJEI = true;
 
     public int colorID;
 
@@ -138,9 +140,8 @@ public class PortalLink {
         return dimID;
     }
 
-     public ResourceLocation toDimension() {
+    public ResourceLocation toDimension() {
         return returnDimID;
     }
-
 
 }

@@ -17,6 +17,7 @@ import dev.latvian.mods.kubejs.script.ConsoleJS;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -73,93 +74,108 @@ public class Portals{
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            CustomPortalBuilder.beginPortal()
-                    .frameBlock(Blocks.DIAMOND_BLOCK)
-                    .lightWithItem(Items.FLINT_AND_STEEL)
-                    .destDimID(Level.END.location())
-                    .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
-                    .tintColor(45, 65, 101)
-                    .portalTexture(PortalTextures.MOLTEN)
-                    .registerPortal();
-        });
+
+        if (!FMLEnvironment.production) {
+
+            event.enqueueWork(() -> {
+                CustomPortalBuilder.beginPortal()
+                        .frameBlock(Blocks.DIAMOND_BLOCK)
+                        .lightWithItem(Items.FLINT_AND_STEEL)
+                        .destDimID(Level.END.location())
+                        .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
+                        .tintColor(45, 65, 101)
+                        .portalTexture(PortalTextures.MOLTEN)
+                        .showInJEI(false)
+                        .registerPortal();
+            });
 
 
-        event.enqueueWork(() -> {
-            CustomPortalBuilder.beginPortal()
-                    .frameBlock(Blocks.EMERALD_BLOCK)
-                    .lightWithFluid(Fluids.WATER)
-                    .destDimID(Level.NETHER.location())
-                    .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
-                    .showParticles(false)
-                    .tintColor(0x00FF50)
-                    .registerPortal();
-        });
+            event.enqueueWork(() -> {
+                CustomPortalBuilder.beginPortal()
+                        .frameBlock(Blocks.EMERALD_BLOCK)
+                        .lightWithFluid(Fluids.WATER)
+                        .destDimID(Level.NETHER.location())
+                        .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
+                        .showParticles(false)
+                        .tintColor(0x00FF50)
+                        .forcedSize(5, 5)
+                        .registerPortal();
+            });
 
-        event.enqueueWork(() -> {
-            CustomPortalBuilder.beginPortal()
-                    .frameBlock(Blocks.IRON_BLOCK)
-                    .lightWithItem(Items.FLINT_AND_STEEL)
-                    .destDimID(Level.NETHER.location())
-                    .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
-                    .tintColor(0xFFD800)
-                    .registerPortal();
-        });
+            event.enqueueWork(() -> {
+                CustomPortalBuilder.beginPortal()
+                        .frameBlock(Blocks.IRON_BLOCK)
+                        .lightWithItem(Items.FLINT_AND_STEEL)
+                        .destDimID(Level.NETHER.location())
+                        .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
+                        .tintColor(0xFFD800)
+                        .registerPortal();
+            });
 
-        event.enqueueWork(() -> {
-            CustomPortalBuilder.beginPortal()
-                    .frameBlock(Blocks.GOLD_BLOCK)
-                    .lightWithItem(Items.FLINT_AND_STEEL)
-                    .destDimID(Level.NETHER.location())
-                    .customFrameTester(Portals.FLATPORTAL_FRAMETESTER)
-                    .tintColor(0x007F7F)
-                    .registerPortal();
-        });
+            event.enqueueWork(() -> {
+                CustomPortalBuilder.beginPortal()
+                        .frameBlock(Blocks.GOLD_BLOCK)
+                        .lightWithItem(Items.FLINT_AND_STEEL)
+                        .destDimID(Level.NETHER.location())
+                        .customFrameTester(Portals.FLATPORTAL_FRAMETESTER)
+                        .tintColor(0x007F7F)
+                        .registerPortal();
+            });
 
+            event.enqueueWork(() -> {
+                CustomPortalBuilder.beginPortal()
+                        .frameBlock(Blocks.GRAVEL)
+                        .lightWithItem(Items.FLINT_AND_STEEL)
+                        .destDimID(Level.NETHER.location())
+                        .customFrameTester(Portals.FLATPORTAL_FRAMETESTER)
+                        .tintColor(0x007F7F)
+                        .forcedSize(6, 10)
+                        .registerPortal();
+            });
 
+            if (PortalEvents.REGISTER_PORTAL.hasListeners()) {
 
-        if (PortalEvents.REGISTER_PORTAL.hasListeners()) {
+                PortalEvents.REGISTER_PORTAL.post(new PortalBuilder());
+                for (PortalBuilder.PortalMaker maker : PortalBuilder.createdPortals) {
+                    // Portal API 1.2.1 changes. Need to tell the user these errors
+                    try {
+                        maker.register();
+                    } catch (RuntimeException e) {
+                        PortalLink link = CustomPortalBuilder.beginPortal().portalLink;
+                        if (link.block == null) {
+                            ConsoleJS.STARTUP.error("Error registering portal for an unset frame");
 
-            PortalEvents.REGISTER_PORTAL.post(new PortalBuilder());
-            for (PortalBuilder.PortalMaker maker : PortalBuilder.createdPortals) {
-                // Portal API 1.2.1 changes. Need to tell the user these errors
-                try {
-                    maker.register();
-                } catch (RuntimeException e) {
-                    PortalLink link = CustomPortalBuilder.beginPortal().portalLink;
-                    if (link.block == null) {
-                        ConsoleJS.STARTUP.error("Error registering portal for an unset frame");
-
-                        // Clear the portal map and return because the block is null, and you can't .toString() it
-                        PortalBuilder.createdPortals.clear();
-                        return;
-                    } else if (CustomPortalApiRegistry.getPortals().containsKey(BuiltInRegistries.BLOCK.get(link.block))) {
-                        ConsoleJS.STARTUP.error("A portal of the frame '" + link.block + "' is already registered");
-                    }
-                    // This should never be reached, but just in case...
-                    if (link.getPortalBlock() == null) {
-                        ConsoleJS.STARTUP.error("[REPORT TO PORTALJS] Portal block is null for portal frame: " + link.block);
-                    }
-                    if (link.portalIgnitionSource == null) {
-                        ConsoleJS.STARTUP.error("Custom ignition source is unset for portal frame: " + link.block);
-                    }
-                    if (link.dimID == null) {
-                        ConsoleJS.STARTUP.error("Destination dimension is unset for portal frame: " + link.block);
-                    }
-                    if (!DIMENSIONS.isEmpty() && !DIMENSIONS.containsKey(link.dimID)) {
-                        ConsoleJS.STARTUP.error("Dimension was not found: " + link.dimID);
-                    }
-                    if (PortalsBlocks.CUSTOM_PORTAL.get() == null) {
-                        ConsoleJS.STARTUP.error("[REPORT TO PORTAL API] Built in CustomPortalBlock is unset");
-                    }
-                    if (link.block.toString().equals("minecraft:obsidian")) {
-                        // The API won't approve obsidian at all
-                        ConsoleJS.STARTUP.error("You can't create a portal with an obsidian base");
+                            // Clear the portal map and return because the block is null, and you can't .toString() it
+                            PortalBuilder.createdPortals.clear();
+                            return;
+                        } else if (CustomPortalApiRegistry.getPortals().containsKey(BuiltInRegistries.BLOCK.get(link.block))) {
+                            ConsoleJS.STARTUP.error("A portal of the frame '" + link.block + "' is already registered");
+                        }
+                        // This should never be reached, but just in case...
+                        if (link.getPortalBlock() == null) {
+                            ConsoleJS.STARTUP.error("[REPORT TO PORTALJS] Portal block is null for portal frame: " + link.block);
+                        }
+                        if (link.portalIgnitionSource == null) {
+                            ConsoleJS.STARTUP.error("Custom ignition source is unset for portal frame: " + link.block);
+                        }
+                        if (link.dimID == null) {
+                            ConsoleJS.STARTUP.error("Destination dimension is unset for portal frame: " + link.block);
+                        }
+                        if (!DIMENSIONS.isEmpty() && !DIMENSIONS.containsKey(link.dimID)) {
+                            ConsoleJS.STARTUP.error("Dimension was not found: " + link.dimID);
+                        }
+                        if (PortalsBlocks.CUSTOM_PORTAL.get() == null) {
+                            ConsoleJS.STARTUP.error("[REPORT TO PORTAL API] Built in CustomPortalBlock is unset");
+                        }
+                        if (link.block.toString().equals("minecraft:obsidian")) {
+                            // The API won't approve obsidian at all
+                            ConsoleJS.STARTUP.error("You can't create a portal with an obsidian base");
+                        }
                     }
                 }
+                // Needed for one time use, and to save memory
+                PortalBuilder.createdPortals.clear();
             }
-            // Needed for one time use, and to save memory
-            PortalBuilder.createdPortals.clear();
         }
 
     }
