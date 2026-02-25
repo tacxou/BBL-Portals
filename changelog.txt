@@ -1,5 +1,10 @@
 BBL Portals
 
+# 1.2.0
+- Fixed crashing when used without KubeJS
+- Added create train support, all portals across the board will now work with create trains which allows trains to travel through portals and teleport to the destination portal
+- Create integration is still a work in progress so if you find any bugs please report them
+
 # 1.1.1
 - Fixed custom portals not showing in JEI when used in KubeJS
 

@@ -3,16 +3,15 @@ package com.benbenlaw.portals;
 import com.benbenlaw.portals.api.CustomPortalBuilder;
 import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
+import com.benbenlaw.portals.integration.create.CreateCompat;
+import com.benbenlaw.portals.integration.kubejs.KubeJSRegister;
 import com.benbenlaw.portals.integration.kubejs.PortalBuilder;
-import com.benbenlaw.portals.integration.kubejs.PortalEvents;
 import com.benbenlaw.portals.portal.PortalPlacer;
 import com.benbenlaw.portals.portal.frame.FlatPortalAreaHelper;
 import com.benbenlaw.portals.portal.frame.VanillaPortalAreaHelper;
 import com.benbenlaw.portals.portal.linking.PortalLinkingStorage;
-import com.benbenlaw.portals.util.CustomPortalApiRegistry;
-import com.benbenlaw.portals.util.PortalIgnitionSource;
-import com.benbenlaw.portals.util.PortalLink;
-import com.benbenlaw.portals.util.PortalsColorHandler;
+import com.benbenlaw.portals.util.*;
+import com.simibubi.create.api.contraption.train.PortalTrackProvider;
 import dev.latvian.mods.kubejs.script.ConsoleJS;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -31,6 +30,7 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -70,7 +70,6 @@ public class Portals{
         }
 
         eventBus.addListener(this::commonSetup);
-
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -135,50 +134,14 @@ public class Portals{
 
         }
 
-
-        if (PortalEvents.REGISTER_PORTAL.hasListeners()) {
-
-            PortalEvents.REGISTER_PORTAL.post(new PortalBuilder());
-            for (PortalBuilder.PortalMaker maker : PortalBuilder.createdPortals) {
-                // Portal API 1.2.1 changes. Need to tell the user these errors
-                try {
-                    maker.register();
-                } catch (RuntimeException e) {
-                    PortalLink link = CustomPortalBuilder.beginPortal().portalLink;
-                    if (link.block == null) {
-                        ConsoleJS.STARTUP.error("Error registering portal for an unset frame");
-
-                        // Clear the portal map and return because the block is null, and you can't .toString() it
-                        PortalBuilder.createdPortals.clear();
-                        return;
-                    } else if (CustomPortalApiRegistry.getPortals().containsKey(BuiltInRegistries.BLOCK.get(link.block))) {
-                        ConsoleJS.STARTUP.error("A portal of the frame '" + link.block + "' is already registered");
-                    }
-                    // This should never be reached, but just in case...
-                    if (link.getPortalBlock() == null) {
-                        ConsoleJS.STARTUP.error("[REPORT TO PORTALJS] Portal block is null for portal frame: " + link.block);
-                    }
-                    if (link.portalIgnitionSource == null) {
-                        ConsoleJS.STARTUP.error("Custom ignition source is unset for portal frame: " + link.block);
-                    }
-                    if (link.dimID == null) {
-                        ConsoleJS.STARTUP.error("Destination dimension is unset for portal frame: " + link.block);
-                    }
-                    if (!DIMENSIONS.isEmpty() && !DIMENSIONS.containsKey(link.dimID)) {
-                        ConsoleJS.STARTUP.error("Dimension was not found: " + link.dimID);
-                    }
-                    if (PortalsBlocks.CUSTOM_PORTAL.get() == null) {
-                        ConsoleJS.STARTUP.error("[REPORT TO PORTAL API] Built in CustomPortalBlock is unset");
-                    }
-                    if (link.block.toString().equals("minecraft:obsidian")) {
-                        // The API won't approve obsidian at all
-                        ConsoleJS.STARTUP.error("You can't create a portal with an obsidian base");
-                    }
-                }
-            }
-            // Needed for one time use, and to save memory
-            PortalBuilder.createdPortals.clear();
+        if (ModList.get().isLoaded("kubejs")) {
+            KubeJSRegister.register();
         }
+
+        if (ModList.get().isLoaded("create")) {
+            event.enqueueWork(CreateCompat::register);
+        }
+
     }
 
     private void onServerStart(ServerStartedEvent event) {
@@ -189,7 +152,5 @@ public class Portals{
                 .getDataStorage()
                 .computeIfAbsent(PortalLinkingStorage.factory(), MOD_ID);
     }
-
-
 
 }

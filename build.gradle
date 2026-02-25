@@ -24,7 +24,10 @@ repositories {
             includeGroup("curse.maven")
         }
     }
+
+    maven { url = "https://maven.createmod.net" }
 }
+
 base {
     archivesName = mod_id
 }
@@ -71,6 +74,12 @@ dependencies {
     implementation "curse.maven:rhino-416294:7104526" // rhino
     implementation "curse.maven:jade-324717:7545219" // jade
     implementation "curse.maven:sodium-394468:6382651" // sodium
+    //implementation "curse.maven:create-328085:7408951" // create
+
+
+
+    implementation("com.simibubi.create:create-${minecraft_version}:6.0.7-159") { transitive = false } //create
+    implementation("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:1.0.63") //ponder
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -112,6 +121,7 @@ publishing {
         maven {
             url "file://${project.projectDir}/repo"
         }
+
     }
 }
 

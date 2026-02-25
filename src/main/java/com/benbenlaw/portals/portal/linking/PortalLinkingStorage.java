@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PortalLinkingStorage extends SavedData {
 
-    private final ConcurrentHashMap<ResourceLocation, ConcurrentHashMap<BlockPos, GlobalPos>> PORTAL_LINKS =
+    public final ConcurrentHashMap<ResourceLocation, ConcurrentHashMap<BlockPos, GlobalPos>> PORTAL_LINKS =
         new ConcurrentHashMap<>();
 
     public PortalLinkingStorage() {
