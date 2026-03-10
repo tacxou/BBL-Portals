@@ -5,7 +5,6 @@ import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
 import com.benbenlaw.portals.util.CustomTeleporter;
 import com.benbenlaw.portals.util.PortalLink;
-import net.minecraft.BlockUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,13 +13,14 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,17 +34,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-import snownee.jade.api.ITooltip;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -78,32 +78,25 @@ public class CustomPortalBlock extends Block implements Portal {
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(@NotNull LevelReader world, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public @NotNull BlockState updateShape(
-        @NotNull BlockState state,
-        @NotNull Direction direction,
-        @NotNull BlockState newState,
-        @NotNull LevelAccessor world,
-        @NotNull BlockPos pos,
-        @NotNull BlockPos posFrom
-    ) {
-        Block block = getPortalBase((Level) world, pos);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+        Block block = getPortalBase((Level) level, pos);
         PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(block);
         if (link != null) {
             PortalFrameTester portalFrameTester = link.getFrameTester()
-                .createInstanceOfPortalFrameTester()
-                .init(
-                    world,
-                    pos,
-                    CustomPortalHelper.getAxisFrom(state),
-                    block
-                );
+                    .createInstanceOfPortalFrameTester()
+                    .init(
+                            (LevelAccessor) level,
+                            pos,
+                            CustomPortalHelper.getAxisFrom(state),
+                            block
+                    );
             if (portalFrameTester.isAlreadyLitPortalFrame())
-                return super.updateShape(state, direction, newState, world, pos, posFrom);
+                return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
         }
         return Blocks.AIR.defaultBlockState();
     }
@@ -155,18 +148,19 @@ public class CustomPortalBlock extends Block implements Portal {
                     dz = source.nextFloat() * 2.0F * j;
                 }
 
-                level.addParticle(new DustParticleOptions(new Vector3f(r, g, b), 1.0F), x, y, z, dx, dy, dz);
+                int colorInt = ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | ((int)(b * 255));
+                level.addParticle(new DustParticleOptions(colorInt, 1.0F), x, y, z, dx, dy, dz);
             }
         }
     }
 
-
     @Override
-    public void entityInside(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Entity entity) {
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
         if (entity.canUsePortal(false)) {
             entity.setAsInsidePortal(this, pos);
         }
     }
+
 
     @Override
     public int getPortalTransitionTime(@NotNull ServerLevel world, @NotNull Entity entity) {
@@ -174,10 +168,10 @@ public class CustomPortalBlock extends Block implements Portal {
             return Math.max(
                 1,
                 world.getGameRules()
-                    .getInt(
+                    .get(
                         playerEntity.getAbilities().invulnerable
-                            ? GameRules.RULE_PLAYERS_NETHER_PORTAL_CREATIVE_DELAY
-                            : GameRules.RULE_PLAYERS_NETHER_PORTAL_DEFAULT_DELAY
+                            ? GameRules.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY
+                            : GameRules.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY
                     )
             );
         } else {
@@ -190,7 +184,7 @@ public class CustomPortalBlock extends Block implements Portal {
     }
 
     @Override
-    public @Nullable DimensionTransition getPortalDestination(@NotNull ServerLevel world, @NotNull Entity entity, @NotNull BlockPos pos) {
+    public @Nullable TeleportTransition getPortalDestination(@NotNull ServerLevel world, @NotNull Entity entity, @NotNull BlockPos pos) {
         return CustomTeleporter.createTeleportTarget(world, entity, getPortalBase(world, pos), pos);
     }
 

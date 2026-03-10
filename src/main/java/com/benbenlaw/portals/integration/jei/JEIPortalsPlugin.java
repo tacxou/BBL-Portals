@@ -11,7 +11,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -24,13 +24,13 @@ import java.util.Objects;
 public class JEIPortalsPlugin implements IModPlugin {
 
     @Override
-    public ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "jei_plugin");
+    public Identifier getPluginUid() {
+        return Identifier.fromNamespaceAndPath(Portals.MOD_ID, "jei_plugin");
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(Blocks.OBSIDIAN.asItem().getDefaultInstance(), PortalCategory.RECIPE_TYPE);
+        registration.addCraftingStation(PortalCategory.RECIPE_TYPE, new ItemStack(Items.OBSIDIAN));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class JEIPortalsPlugin implements IModPlugin {
             int width = link.forcedWidth != 0 ? link.forcedWidth  + 2 : 4;
             int height = link.forcedHeight != 0 ? link.forcedHeight  + 2 : 5;
 
-            if (Objects.equals(link.portalFrameTester, ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
+            if (Objects.equals(link.portalFrameTester, Identifier.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
                 width = link.forcedWidth != 0 ? link.forcedWidth + 2 : 5;
                 height = link.forcedHeight != 0 ? link.forcedHeight + 2 : 5;
             }
@@ -61,7 +61,7 @@ public class JEIPortalsPlugin implements IModPlugin {
                     link.toDimension(),
                     width,
                     height,
-                    BuiltInRegistries.BLOCK.get(link.block).defaultBlockState(),
+                    BuiltInRegistries.BLOCK.getValue(link.block).defaultBlockState(),
                     link.portalBlock.get().defaultBlockState(),
                     link.portalFrameTester,
                     link.portalIgnitionSource

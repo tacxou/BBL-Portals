@@ -13,7 +13,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Portal;
@@ -27,7 +27,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@OnlyIn(Dist.CLIENT)
 @Mixin(Gui.class)
 public class InGameHudMixin {
 
@@ -40,19 +39,26 @@ public class InGameHudMixin {
 
     @Redirect(
             method = "renderPortalOverlay",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;setColor(FFFF)V", ordinal = 0)
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/ARGB;white(F)I"
+            )
     )
-    public void changeColor(GuiGraphics instance, float red, float green, float blue, float alpha) {
+    private int portals$changeOverlayColor(float alpha) {
         assert minecraft.player != null;
+
         isCustomPortal(minecraft.player);
+
         if (lastColor >= 0) {
-            float r = ((lastColor >> 16) & 0xFF) / 255f;
-            float g = ((lastColor >> 8) & 0xFF) / 255f;
-            float b = (lastColor & 0xFF) / 255f;
-            RenderSystem.setShaderColor(r, g, b, alpha);
-        } else {
-            RenderSystem.setShaderColor(red, green, blue, alpha);
+            int r = (lastColor >> 16) & 0xFF;
+            int g = (lastColor >> 8) & 0xFF;
+            int b = lastColor & 0xFF;
+            int a = (int)(alpha * 255);
+
+            return ARGB.color(a, r, g, b);
         }
+
+        return ARGB.white(alpha);
     }
 
     @Redirect(
@@ -78,6 +84,7 @@ public class InGameHudMixin {
 
     @Unique
     private void isCustomPortal(LocalPlayer player) {
+        lastColor = -1;
         PortalProcessor portalManager = player.portalProcess;
         Portal portalBlock = portalManager != null && portalManager.isInsidePortalThisTick()
             ? ((PortalManagerAccessor) portalManager).getPortal()
@@ -91,7 +98,7 @@ public class InGameHudMixin {
         }
 
         if (portalBlock instanceof CustomPortalBlock customportalblock) {
-            PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(customportalblock.getPortalBase(player.clientLevel, portalPos));
+            PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(customportalblock.getPortalBase(player.level(), portalPos));
             if (link != null) {
                 lastColor = link.getTintColor();
                 return;

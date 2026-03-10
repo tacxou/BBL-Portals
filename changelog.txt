@@ -1,5 +1,9 @@
 BBL Portals
 
+# 2.0.0
+- Updated to minecraft 26.1 snapshots
+- Removed Create, Jade and Kubejs support for now, JEI is WIP
+
 # 1.2.0
 - Fixed crashing when used without KubeJS
 - Added create train support, all portals across the board will now work with create trains which allows trains to travel through portals and teleport to the destination portal

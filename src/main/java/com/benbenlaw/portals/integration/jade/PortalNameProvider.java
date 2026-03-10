@@ -1,5 +1,7 @@
 package com.benbenlaw.portals.integration.jade;
 
+/*
+
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
@@ -7,7 +9,7 @@ import com.benbenlaw.portals.util.PortalLink;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -38,8 +40,8 @@ public class PortalNameProvider implements IBlockComponentProvider {
             return;
         }
 
-        ResourceLocation currentDim = accessor.getPlayer().level().dimension().location();
-        ResourceLocation destinationDim = currentDim.equals(link.dimID) && link.returnDimID != null ? link.returnDimID
+        Identifier currentDim = accessor.getPlayer().level().dimension().location();
+        Identifier destinationDim = currentDim.equals(link.dimID) && link.returnDimID != null ? link.returnDimID
                 : (currentDim.equals(link.returnDimID) && link.dimID != null ? link.dimID
                 : (link.dimID != null ? link.dimID : link.returnDimID));
 
@@ -47,7 +49,7 @@ public class PortalNameProvider implements IBlockComponentProvider {
         iTooltip.add(Component.translatable("tooltip.portal.jade.to", formattedName));
     }
 
-    private String formatDimensionName(ResourceLocation dim) {
+    private String formatDimensionName(Identifier dim) {
         if (dim == null) return "Unknown";
 
         String path = dim.getPath().replace("_", " ");
@@ -68,7 +70,9 @@ public class PortalNameProvider implements IBlockComponentProvider {
 
 
     @Override
-    public ResourceLocation getUid() {
-        return ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "portal_name_provider");
+    public Identifier getUid() {
+        return Identifier.fromNamespaceAndPath(Portals.MOD_ID, "portal_name_provider");
     }
 }
+
+ */

@@ -10,9 +10,8 @@
     "PotionEntityMixin"
   ],
   "client": [
-    "client.ChunkRendererRegionAccessor",
-    "client.InGameHudMixin",
-    "client.LevelSliceAccessor"
+    "client.RenderSectionRegionAccessor",
+    "client.InGameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

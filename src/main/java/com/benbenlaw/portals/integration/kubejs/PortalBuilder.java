@@ -1,5 +1,6 @@
 package com.benbenlaw.portals.integration.kubejs;
 
+/*
 import com.benbenlaw.portals.api.BiHolder;
 import com.benbenlaw.portals.api.CustomPortalBuilder;
 import com.benbenlaw.portals.block.CustomPortalBlock;
@@ -12,7 +13,7 @@ import com.benbenlaw.portals.util.ShouldTeleport;
 import dev.latvian.mods.kubejs.event.KubeStartupEvent;
 import dev.latvian.mods.kubejs.typings.Info;
 import dev.latvian.mods.rhino.util.HideFromJS;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -91,13 +92,13 @@ public class PortalBuilder implements KubeStartupEvent {
         }
 
         @Info("(Optional) Configure the portal's return dimension. `onlyIgniteInReturnDimension` specifies if the portal can only be ignited in the return dimension")
-        public PortalMaker returnDim(ResourceLocation dimension, boolean onlyIgniteInReturnDimension) {
+        public PortalMaker returnDim(Identifier dimension, boolean onlyIgniteInReturnDimension) {
             this.builder.returnDim(dimension, onlyIgniteInReturnDimension);
             return this;
         }
 
         @Info("(Optional) Configure the portal's return dimension.")
-        public PortalMaker returnDim(ResourceLocation dimension) {
+        public PortalMaker returnDim(Identifier dimension) {
             return returnDim(dimension, false);
         }
 
@@ -114,7 +115,7 @@ public class PortalBuilder implements KubeStartupEvent {
         }
 
         @Info("Set the dimension to travel to when the portal is used")
-        public PortalMaker setDestination(ResourceLocation dimension) {
+        public PortalMaker setDestination(Identifier dimension) {
             this.builder.destDimID(dimension);
             return this;
         }
@@ -131,7 +132,7 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
-//        public PortalMaker generateAndSet(String name, ResourceLocation dimension) {
+//        public PortalMaker generateAndSet(String name, Identifier dimension) {
 //            InfiniverseAPI.get().getOrCreateLevel(
 //                    Minecraft.getInstance().level.getServer(),
 //                    ResourceKey.create(Registries.DIMENSION, dimension,
@@ -147,7 +148,7 @@ public class PortalBuilder implements KubeStartupEvent {
         }
 
         @Info("(Optional) Custom ignition source by the namespace and path (as in mod_id:some_source)")
-        public PortalMaker customIgnitionSource(ResourceLocation source) {
+        public PortalMaker customIgnitionSource(Identifier source) {
             this.builder.customIgnitionSource(source);
             return this;
         }
@@ -211,6 +212,7 @@ public class PortalBuilder implements KubeStartupEvent {
             //this.builder.customPortalBlock(() -> PortalsBlocks.CUSTOM_PORTAL.get().withConsumer(this.randomConsumer));
             this.builder.registerPortal();
         }
-
     }
 }
+
+ */

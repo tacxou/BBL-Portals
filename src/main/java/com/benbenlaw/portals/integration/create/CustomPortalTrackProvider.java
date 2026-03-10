@@ -1,4 +1,7 @@
 package com.benbenlaw.portals.integration.create;
+
+/*
+
 import com.benbenlaw.portals.portal.linking.PortalLinkingStorage;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.contraption.train.PortalTrackProvider;
@@ -6,7 +9,7 @@ import net.createmod.catnip.math.BlockFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -21,7 +24,7 @@ import net.createmod.catnip.math.BlockFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -35,7 +38,7 @@ public class CustomPortalTrackProvider implements PortalTrackProvider {
     public Exit findExit(ServerLevel level, BlockFace inboundTrack) {
         BlockPos portalPos = inboundTrack.getConnectedPos();
         BlockState portalState = level.getBlockState(portalPos);
-        ResourceLocation currentDim = level.dimension().location();
+        Identifier currentDim = level.dimension().location();
         
         DimensionDataStorage dataStorage = level.getServer().overworld().getDataStorage();
         String[] possibleKeys = {"portal_links", "portals_portal_links", "portal_linking_storage", "portals"};
@@ -54,7 +57,7 @@ public class CustomPortalTrackProvider implements PortalTrackProvider {
             return null;
         }
         
-        Map.Entry<ResourceLocation, java.util.concurrent.ConcurrentHashMap<BlockPos, GlobalPos>> dimEntry = null;
+        Map.Entry<Identifier, java.util.concurrent.ConcurrentHashMap<BlockPos, GlobalPos>> dimEntry = null;
         for (var entry : storage.PORTAL_LINKS.entrySet()) {
             if (entry.getKey().toString().equals(currentDim.toString())) {
                 dimEntry = entry;
@@ -110,3 +113,5 @@ public class CustomPortalTrackProvider implements PortalTrackProvider {
         return new Exit(otherLevel, new BlockFace(otherPortalPos.relative(targetDirection), targetDirection.getOpposite()));
     }
 }
+
+ */

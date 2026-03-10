@@ -3,7 +3,8 @@ package com.benbenlaw.portals.util;
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.block.PortalsBlocks;
 import com.benbenlaw.portals.portal.frame.PortalFrameTester;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,7 +16,7 @@ public class CustomPortalApiRegistry {
 
     protected static final ConcurrentHashMap<Block, PortalLink> portals = new ConcurrentHashMap<>();
 
-    private static final ConcurrentHashMap<ResourceLocation, PortalFrameTester.PortalFrameTesterFactory> PortalFrameTesters =
+    private static final ConcurrentHashMap<Identifier, PortalFrameTester.PortalFrameTesterFactory> PortalFrameTesters =
         new ConcurrentHashMap<>();
 
     private CustomPortalApiRegistry() {}
@@ -47,13 +48,13 @@ public class CustomPortalApiRegistry {
     }
 
     public static void registerPortalFrameTester(
-        ResourceLocation frameTesterID,
+            Identifier frameTesterID,
         PortalFrameTester.PortalFrameTesterFactory createPortalFrameTester
     ) {
         PortalFrameTesters.put(frameTesterID, createPortalFrameTester);
     }
 
-    public static PortalFrameTester.PortalFrameTesterFactory getPortalFrameTester(ResourceLocation frameTesterID) {
+    public static PortalFrameTester.PortalFrameTesterFactory getPortalFrameTester(Identifier frameTesterID) {
         return PortalFrameTesters.getOrDefault(frameTesterID, null);
     }
 

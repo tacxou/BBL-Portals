@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class FlowingFluidMixin {
 
     @Inject(method = "canHoldFluid", at = @At("HEAD"), cancellable = true)
-    private void preventCustomPortalsBeingReplaced(BlockGetter getter, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
+    private static void preventCustomPortalsBeingReplaced(BlockGetter getter, BlockPos pos, BlockState state, Fluid fluid, CallbackInfoReturnable<Boolean> cir) {
         if (state.getBlock() instanceof CustomPortalBlock) {
             cir.setReturnValue(false);
         }

@@ -3,19 +3,16 @@ package com.benbenlaw.portals;
 import com.benbenlaw.portals.api.CustomPortalBuilder;
 import com.benbenlaw.portals.block.PortalTextures;
 import com.benbenlaw.portals.block.PortalsBlocks;
-import com.benbenlaw.portals.integration.create.CreateCompat;
-import com.benbenlaw.portals.integration.kubejs.KubeJSRegister;
-import com.benbenlaw.portals.integration.kubejs.PortalBuilder;
 import com.benbenlaw.portals.portal.PortalPlacer;
 import com.benbenlaw.portals.portal.frame.FlatPortalAreaHelper;
 import com.benbenlaw.portals.portal.frame.VanillaPortalAreaHelper;
 import com.benbenlaw.portals.portal.linking.PortalLinkingStorage;
 import com.benbenlaw.portals.util.*;
-import com.simibubi.create.api.contraption.train.PortalTrackProvider;
-import dev.latvian.mods.kubejs.script.ConsoleJS;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -40,8 +37,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import snownee.jade.JadeClient;
-import snownee.jade.api.IWailaClientRegistration;
 
 import java.util.HashMap;
 
@@ -51,9 +46,9 @@ public class Portals{
     public static final String MOD_ID = "portals";
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static HashMap<ResourceLocation, ResourceKey<Level>> DIMENSIONS = new HashMap<>();
-    public static ResourceLocation VANILLAPORTAL_FRAMETESTER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "vanillanether");
-    public static ResourceLocation FLATPORTAL_FRAMETESTER = ResourceLocation.fromNamespaceAndPath(MOD_ID, "flat");
+    public static HashMap<Identifier, ResourceKey<Level>> DIMENSIONS = new HashMap<>();
+    public static Identifier VANILLAPORTAL_FRAMETESTER = Identifier.fromNamespaceAndPath(MOD_ID, "vanillanether");
+    public static Identifier FLATPORTAL_FRAMETESTER = Identifier.fromNamespaceAndPath(MOD_ID, "flat");
     public static PortalLinkingStorage PORTAL_LINKING_STORAGE;
 
     public Portals(final IEventBus eventBus, final ModContainer modContainer) {
@@ -65,8 +60,9 @@ public class Portals{
         CustomPortalApiRegistry.registerPortalFrameTester(VANILLAPORTAL_FRAMETESTER, VanillaPortalAreaHelper::new);
         CustomPortalApiRegistry.registerPortalFrameTester(FLATPORTAL_FRAMETESTER, FlatPortalAreaHelper::new);
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             eventBus.register(new PortalsColorHandler());
+            eventBus.addListener(Portals::onClientSetup);
         }
 
         eventBus.addListener(this::commonSetup);
@@ -74,13 +70,13 @@ public class Portals{
 
     private void commonSetup(FMLCommonSetupEvent event) {
 
-        if (!FMLEnvironment.production) {
+        if (!FMLEnvironment.isProduction()) {
 
             event.enqueueWork(() -> {
                 CustomPortalBuilder.beginPortal()
                         .frameBlock(Blocks.DIAMOND_BLOCK)
                         .lightWithItem(Items.FLINT_AND_STEEL)
-                        .destDimID(Level.END.location())
+                        .destDimID(Level.END.identifier())
                         .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
                         .tintColor(45, 65, 101)
                         .portalTexture(PortalTextures.MOLTEN)
@@ -93,7 +89,7 @@ public class Portals{
                 CustomPortalBuilder.beginPortal()
                         .frameBlock(Blocks.EMERALD_BLOCK)
                         .lightWithFluid(Fluids.WATER)
-                        .destDimID(Level.NETHER.location())
+                        .destDimID(Level.NETHER.identifier())
                         .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
                         .showParticles(false)
                         .tintColor(0x00FF50)
@@ -105,7 +101,7 @@ public class Portals{
                 CustomPortalBuilder.beginPortal()
                         .frameBlock(Blocks.IRON_BLOCK)
                         .lightWithItem(Items.FLINT_AND_STEEL)
-                        .destDimID(Level.NETHER.location())
+                        .destDimID(Level.NETHER.identifier())
                         .customFrameTester(Portals.VANILLAPORTAL_FRAMETESTER)
                         .tintColor(0xFFD800)
                         .registerPortal();
@@ -115,7 +111,7 @@ public class Portals{
                 CustomPortalBuilder.beginPortal()
                         .frameBlock(Blocks.GOLD_BLOCK)
                         .lightWithItem(Items.FLINT_AND_STEEL)
-                        .destDimID(Level.NETHER.location())
+                        .destDimID(Level.NETHER.identifier())
                         .customFrameTester(Portals.FLATPORTAL_FRAMETESTER)
                         .tintColor(0x007F7F)
                         .registerPortal();
@@ -125,7 +121,7 @@ public class Portals{
                 CustomPortalBuilder.beginPortal()
                         .frameBlock(Blocks.GRAVEL)
                         .lightWithItem(Items.FLINT_AND_STEEL)
-                        .destDimID(Level.NETHER.location())
+                        .destDimID(Level.NETHER.identifier())
                         .customFrameTester(Portals.FLATPORTAL_FRAMETESTER)
                         .tintColor(0x007F7F)
                         .forcedSize(6, 10)
@@ -134,6 +130,7 @@ public class Portals{
 
         }
 
+        /*
         if (ModList.get().isLoaded("kubejs")) {
             KubeJSRegister.register();
         }
@@ -142,15 +139,27 @@ public class Portals{
             event.enqueueWork(CreateCompat::register);
         }
 
+         */
+
     }
 
     private void onServerStart(ServerStartedEvent event) {
-        for (ResourceKey<Level> registryKey : event.getServer().levelKeys()) DIMENSIONS.put(registryKey.location(), registryKey);
+        for (ResourceKey<Level> registryKey : event.getServer().levelKeys()) DIMENSIONS.put(registryKey.identifier(), registryKey);
 
         PORTAL_LINKING_STORAGE = event.getServer()
                 .overworld()
                 .getDataStorage()
-                .computeIfAbsent(PortalLinkingStorage.factory(), MOD_ID);
+                .computeIfAbsent(PortalLinkingStorage.TYPE);
+    }
+
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork( () ->
+                ItemBlockRenderTypes.setRenderLayer(PortalsBlocks.CUSTOM_PORTAL.get(), ChunkSectionLayer.TRANSLUCENT)
+        );
+    }
+
+    public static Identifier identifier(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
 }

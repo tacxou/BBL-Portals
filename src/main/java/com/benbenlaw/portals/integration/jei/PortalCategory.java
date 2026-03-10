@@ -15,43 +15,42 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
-    public final static ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "portal_category");
-    public final static ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "textures/gui/jei_portal_category.png");
+    public final static Identifier TEXTURE = Portals.identifier("textures/gui/jei_portal_category.png");
+    static final IRecipeType<PortalRecipe> RECIPE_TYPE = IRecipeType.create(Portals.MOD_ID, "portal_category", PortalRecipe.class);
 
-
-    static final RecipeType<PortalRecipe> RECIPE_TYPE = RecipeType.create(Portals.MOD_ID, "portal_category", PortalRecipe.class);
-    private final IDrawable background;
+    private final int height = 100;
+    private final int width = 140;
     private final IDrawable icon;
 
     public PortalCategory(IGuiHelper helper) {
-        this.background = helper.createDrawable(TEXTURE, 0, 0, 140, 100);
         this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Blocks.OBSIDIAN.asItem()));
     }
 
     @Override
-    public RecipeType<PortalRecipe> getRecipeType() {
+    public IRecipeType<PortalRecipe> getRecipeType() {
         return RECIPE_TYPE;
     }
 
@@ -61,25 +60,29 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
     }
 
     @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    @Override
     public @Nullable IDrawable getIcon() {
         return icon;
     }
 
     @Override
-    @SuppressWarnings("removal")
-    public @Nullable IDrawable getBackground() {
-        return background;
-    }
-
-
-    @Override
-    public @Nullable ResourceLocation getRegistryName(PortalRecipe recipe) {
+    public @org.jspecify.annotations.Nullable Identifier getIdentifier(PortalRecipe recipe) {
         String fromDim = recipe.fromDimension().toString().replace(':', '_');
         String toDim = recipe.toDimension().toString().replace(':', '_');
         String frame = BuiltInRegistries.BLOCK.getKey(recipe.portalFrame().getBlock()).toString().replace(':', '_');
 
-        return ResourceLocation.parse(fromDim + "_" + toDim + "_" + frame);
+        return Identifier.parse(fromDim + "_" + toDim + "_" + frame);
     }
+
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, PortalRecipe recipe, IFocusGroup iFocusGroup) {
@@ -89,7 +92,7 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
         if (sourceType == PortalIgnitionSource.SourceType.USEITEM) {
             ItemStack litItem = ignitionSource.getIgnetionItemStack();
-            builder.addSlot(RecipeIngredientRole.CATALYST,44 ,1).addItemStack(litItem).addRichTooltipCallback(
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY,44 ,1).add(litItem).addRichTooltipCallback(
                     (recipeSlotView, tooltip) -> {
                         tooltip.add(Component.translatable("portals.jei.tooltip.item_ignition"));
                     }
@@ -98,7 +101,7 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
         if (sourceType == PortalIgnitionSource.SourceType.FLUID) {
             ItemStack litItem = ignitionSource.getFluidIgnitionAsBucket();
-            builder.addSlot(RecipeIngredientRole.CATALYST,44 ,1).addItemStack(litItem).addRichTooltipCallback(
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY,44 ,1).add(litItem).addRichTooltipCallback(
                     (recipeSlotView, tooltip) -> {
                         tooltip.add(Component.translatable("portals.jei.tooltip.fluid_ignition"));
                     }
@@ -107,14 +110,14 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
         if (sourceType == PortalIgnitionSource.SourceType.BLOCKPLACED) {
             ItemStack blockItem = ignitionSource.getBlockPlacedAsItemStack();
-            builder.addSlot(RecipeIngredientRole.CATALYST,44 ,1).addItemStack(blockItem).addRichTooltipCallback(
+            builder.addSlot(RecipeIngredientRole.RENDER_ONLY,44 ,1).add(blockItem).addRichTooltipCallback(
                     (recipeSlotView, tooltip) -> {
                         tooltip.add(Component.translatable("portals.jei.tooltip.place_block_ignition"));
                     }
             );
         }
 
-        builder.addSlot(RecipeIngredientRole.INPUT, 80, 1).addItemStack(recipe.portalFrame().getBlock().asItem().getDefaultInstance());
+        builder.addSlot(RecipeIngredientRole.INPUT, 80, 1).add(recipe.portalFrame().getBlock().asItem().getDefaultInstance());
 
     }
 
@@ -132,11 +135,11 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
             tooltip.add(Component.translatable("portals.jei.tooltip.rotate", width, height));
             tooltip.add(Component.translatable("portals.jei.tooltip.corners", width, height));
 
-            if (Objects.equals(recipe.frameTester(), ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "vanillanether"))) {
+            if (Objects.equals(recipe.frameTester(), Identifier.fromNamespaceAndPath(Portals.MOD_ID, "vanillanether"))) {
                 tooltip.add(Component.translatable("portals.jei.tooltip.nether"));
             }
 
-            if (Objects.equals(recipe.frameTester(), ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
+            if (Objects.equals(recipe.frameTester(), Identifier.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
                 tooltip.add(Component.translatable("portals.jei.tooltip.flat"));
             }
         }
@@ -144,9 +147,10 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
     @Override
     public void draw(PortalRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        /*
         PoseStack poseStack = guiGraphics.pose();
-        RenderSystem.enableDepthTest();
-        Lighting.setupFor3DItems();
+        //RenderSystem.enableDepthTest();
+        //Lighting.setupFor3DItems();
 
         poseStack.pushPose();
         poseStack.translate(70, 60, 50);
@@ -157,13 +161,13 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
         float angle = (System.currentTimeMillis() % 10000L) / 10000.0F * 360.0F;
         poseStack.mulPose(Axis.YP.rotationDegrees(angle));
 
-        if (Objects.equals(recipe.frameTester(), ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "vanillanether"))) {
+        if (Objects.equals(recipe.frameTester(), Identifier.fromNamespaceAndPath(Portals.MOD_ID, "vanillanether"))) {
             BlockState frame = recipe.portalFrame();
             BlockState portal = recipe.portalBlock();
             renderNetherPortalLike(frame, portal, recipe.portalWidth(), recipe.portalHeight(), poseStack);
         }
 
-        if (Objects.equals(recipe.frameTester(), ResourceLocation.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
+        if (Objects.equals(recipe.frameTester(), Identifier.fromNamespaceAndPath(Portals.MOD_ID, "flat"))) {
             BlockState frame = recipe.portalFrame();
             BlockState portal = recipe.portalBlock().setValue(CustomPortalBlock.AXIS, Direction.Axis.Y);
 
@@ -174,13 +178,15 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
         poseStack.popPose();
 
-        Lighting.setupForFlatItems();
-        RenderSystem.disableDepthTest();
+        //Lighting.setupForFlatItems();
+        //RenderSystem.disableDepthTest();
 
+         */
 
     }
 
     private void renderNetherPortalLike(BlockState frame, BlockState portal, int width, int height, PoseStack poseStack) {
+
         Minecraft mc = Minecraft.getInstance();
         BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
@@ -200,8 +206,9 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
                         buffer,
                         0xF000F0,
                         OverlayTexture.NO_OVERLAY,
-                        ModelData.EMPTY,
-                        RenderType.TRANSLUCENT
+                        mc.level,
+                        BlockPos.ZERO,
+                        layer -> layer == ChunkSectionLayer.TRANSLUCENT
                 );
 
                 poseStack.popPose();
@@ -209,6 +216,8 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
         }
 
         buffer.endBatch();
+
+
 
     }
 
@@ -239,10 +248,10 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
                         buffer,
                         0xF000F0,
                         OverlayTexture.NO_OVERLAY,
-                        ModelData.EMPTY,
-                        RenderType.TRANSLUCENT
+                        mc.level,
+                        BlockPos.ZERO,
+                        layer -> layer == ChunkSectionLayer.TRANSLUCENT
                 );
-
                 poseStack.popPose();
             }
         }

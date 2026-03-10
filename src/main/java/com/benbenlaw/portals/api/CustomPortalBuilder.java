@@ -8,7 +8,7 @@ import com.benbenlaw.portals.event.PortalPreIgniteEvent;
 import com.benbenlaw.portals.event.PortalSoundEvent;
 import com.benbenlaw.portals.util.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -40,7 +40,7 @@ public class CustomPortalBuilder {
      * Register the portal when completed. This should be called last, only when you are finished configuring the portal
      */
     public void registerPortal() {
-        Block frame = BuiltInRegistries.BLOCK.get(portalLink.block);
+        Block frame = BuiltInRegistries.BLOCK.getValue(portalLink.block);
 
         Portals.LOGGER.info("Registering portal:");
         Portals.LOGGER.info(" Frame block: {}", portalLink.block);
@@ -52,11 +52,11 @@ public class CustomPortalBuilder {
     }
 
     /**
-     * Specify the Block ResourceLocation to be used as the Frame
+     * Specify the Block Identifier to be used as the Frame
      *
      * @param blockID Block identifier of the portal's frame block
      */
-    public CustomPortalBuilder frameBlock(ResourceLocation blockID) {
+    public CustomPortalBuilder frameBlock(Identifier blockID) {
         portalLink.block = blockID;
         return this;
     }
@@ -74,9 +74,9 @@ public class CustomPortalBuilder {
     /**
      * Specify the destination for the portal
      *
-     * @param dimID ResourceLocation of the Dimension the portal will travel to
+     * @param dimID Identifier of the Dimension the portal will travel to
      */
-    public CustomPortalBuilder destDimID(ResourceLocation dimID) {
+    public CustomPortalBuilder destDimID(Identifier dimID) {
         portalLink.dimID = dimID;
         return this;
     }
@@ -131,7 +131,7 @@ public class CustomPortalBuilder {
      * Specify a Custom Ignition Source to be used to ignite the portal. You must manually trigger the ignition
      * yourself.
      */
-    public CustomPortalBuilder customIgnitionSource(ResourceLocation customSourceID) {
+    public CustomPortalBuilder customIgnitionSource(Identifier customSourceID) {
         portalLink.portalIgnitionSource = PortalIgnitionSource.CustomSource(customSourceID);
         return this;
     }
@@ -172,7 +172,7 @@ public class CustomPortalBuilder {
      *                                 destination
      * @param onlyIgnitableInReturnDim Should this portal only be ignitable in returnDimID
      */
-    public CustomPortalBuilder returnDim(ResourceLocation returnDimID, boolean onlyIgnitableInReturnDim) {
+    public CustomPortalBuilder returnDim(Identifier returnDimID, boolean onlyIgnitableInReturnDim) {
         portalLink.returnDimID = returnDimID;
         portalLink.onlyIgnitableInReturnDim = onlyIgnitableInReturnDim;
         return this;
@@ -198,7 +198,7 @@ public class CustomPortalBuilder {
     /**
      * Specify a custom portal frame tester to be used.
      */
-    public CustomPortalBuilder customFrameTester(ResourceLocation frameTester) {
+    public CustomPortalBuilder customFrameTester(Identifier frameTester) {
         portalLink.portalFrameTester = frameTester;
         return this;
     }

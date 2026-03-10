@@ -9,7 +9,7 @@ import com.benbenlaw.portals.event.PortalIgniteEvent;
 import com.benbenlaw.portals.event.PortalPreIgniteEvent;
 import com.benbenlaw.portals.event.PortalSoundEvent;
 import com.benbenlaw.portals.portal.frame.PortalFrameTester;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class PortalLink {
 
-    public ResourceLocation block;
+    public Identifier block;
 
     public PortalIgnitionSource portalIgnitionSource = PortalIgnitionSource.FIRE;
 
@@ -27,9 +27,9 @@ public class PortalLink {
 
     public PortalTextures portalTexture = PortalTextures.DEFAULT;
 
-    public ResourceLocation dimID;
+    public Identifier dimID;
 
-    public ResourceLocation returnDimID = ResourceLocation.withDefaultNamespace("overworld");
+    public Identifier returnDimID = Identifier.withDefaultNamespace("overworld");
 
     public boolean onlyIgnitableInReturnDim = false;
 
@@ -45,7 +45,7 @@ public class PortalLink {
 
     public Integer returnPortalSearchYBottom, returnPortalSearchYTop;
 
-    public ResourceLocation portalFrameTester = Portals.VANILLAPORTAL_FRAMETESTER;
+    public Identifier portalFrameTester = Portals.VANILLAPORTAL_FRAMETESTER;
 
     private Consumer<Entity> postTPEvent;
 
@@ -61,7 +61,7 @@ public class PortalLink {
 
     public PortalLink() {}
 
-    public PortalLink(ResourceLocation blockID, ResourceLocation dimID, int colorID) {
+    public PortalLink(Identifier blockID, Identifier dimID, int colorID) {
         this.block = blockID;
         this.dimID = dimID;
         this.colorID = colorID;
@@ -81,7 +81,7 @@ public class PortalLink {
         );
     }
 
-    public boolean canLightInDim(ResourceLocation dim) {
+    public boolean canLightInDim(Identifier dim) {
         if (!onlyIgnitableInReturnDim)
             return true;
         return dim.equals(returnDimID) || dim.equals(dimID);
@@ -136,11 +136,11 @@ public class PortalLink {
         return showParticles;
     }
 
-    public ResourceLocation fromDimension() {
+    public Identifier fromDimension() {
         return dimID;
     }
 
-    public ResourceLocation toDimension() {
+    public Identifier toDimension() {
         return returnDimID;
     }
 

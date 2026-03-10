@@ -1,5 +1,7 @@
 package com.benbenlaw.portals.integration.jade;
 
+/*
+
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.block.CustomPortalBlock;
 import com.benbenlaw.portals.block.PortalsBlocks;
@@ -17,3 +19,6 @@ public class JadeSetup implements IWailaPlugin {
         System.out.println("Registered PortalNameProvider with Jade");
     }
 }
+
+
+ */

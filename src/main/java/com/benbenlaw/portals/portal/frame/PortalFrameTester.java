@@ -4,19 +4,21 @@ import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
 import com.benbenlaw.portals.util.PortalIgnitionSource;
 import com.benbenlaw.portals.util.PortalLink;
-import net.minecraft.BlockUtil;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
@@ -100,7 +102,7 @@ public abstract class PortalFrameTester {
 
     public abstract Vec3 getEntityOffsetInPortal(BlockUtil.FoundRectangle arg, Entity entity, Direction.Axis portalAxis);
 
-    public abstract DimensionTransition getTPTargetInPortal(
+    public abstract TeleportTransition getTPTargetInPortal(
         ServerLevel world,
         BlockUtil.FoundRectangle portalRect,
         Direction.Axis portalAxis,
@@ -124,7 +126,7 @@ public abstract class PortalFrameTester {
             if (offset > 20)
                 return null;
             if (
-                (axis.equals(Direction.Axis.Y) && blockPos.getY() - offset < world.getMinBuildHeight()) ||
+                (axis.equals(Direction.Axis.Y) && blockPos.getY() - offset < world.getMinY()) ||
                     (!axis.equals(Direction.Axis.Y) && !world.getWorldBorder()
                         .isWithinBounds(
                             blockPos.relative(axis, -offset)

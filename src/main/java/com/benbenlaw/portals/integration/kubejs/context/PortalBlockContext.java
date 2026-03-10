@@ -1,5 +1,6 @@
 package com.benbenlaw.portals.integration.kubejs.context;
 
+/*
 import dev.latvian.mods.kubejs.typings.Info;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -10,3 +11,5 @@ public record PortalBlockContext(@Info("The block state of the portal") BlockSta
                                  @Info("The level where the portal exists") ServerLevel level,
                                  @Info("The position of the portal block") BlockPos pos,
                                  @Info("The random source used for effects or behavior") RandomSource randomSource) {}
+
+ */

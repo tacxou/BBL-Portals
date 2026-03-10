@@ -7,19 +7,20 @@ import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
 import com.benbenlaw.portals.util.PortalLink;
 import com.google.common.collect.Sets;
-import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
@@ -170,7 +171,7 @@ public class VanillaPortalAreaHelper extends PortalFrameTester {
     }
 
     @Override
-    public DimensionTransition getTPTargetInPortal(
+    public TeleportTransition getTPTargetInPortal(
         ServerLevel world,
         BlockUtil.FoundRectangle portalRect,
         Direction.Axis portalAxis,
@@ -189,11 +190,11 @@ public class VanillaPortalAreaHelper extends PortalFrameTester {
         else if (portalAxis == Direction.Axis.Z)
             x = portalRect.minCorner.getX() + .5D;
 
-        DimensionTransition.PostDimensionTransition post = DimensionTransition.PLAY_PORTAL_SOUND.then(entityx -> {
+        TeleportTransition.PostTeleportTransition post = TeleportTransition.PLAY_PORTAL_SOUND.then(entityx -> {
             entityx.placePortalTicket(portalRect.minCorner);
             link.executePostTPEvent(entityx);
         });
-        return new DimensionTransition(world, new Vec3(x, y, z), entity.getDeltaMovement(), entity.getYRot(), entity.getXRot(), post);
+        return new TeleportTransition(world, new Vec3(x, y, z), entity.getDeltaMovement(), entity.getYRot(), entity.getXRot(), post);
     }
 
     public void lightPortal(Block frameBlock) {

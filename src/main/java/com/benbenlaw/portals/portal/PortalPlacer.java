@@ -5,10 +5,10 @@ import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
 import com.benbenlaw.portals.util.PortalIgnitionSource;
 import com.benbenlaw.portals.util.PortalLink;
-import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,7 +35,7 @@ public class PortalPlacer {
 
         if (
             link == null || !link.doesIgnitionMatch(ignitionSource) || !link.canLightInDim(
-                world.dimension().location()
+                world.dimension().identifier()
             )
         )
             return false;
@@ -79,16 +79,16 @@ public class PortalPlacer {
         return false;
     }
 
-    public static Optional<BlockUtil.FoundRectangle> createDestinationPortal(ServerLevel world, BlockPos blockPos,BlockState frameBlock, Direction.Axis axis) {
+    public static Optional<BlockUtil.FoundRectangle> createDestinationPortal(ServerLevel world, BlockPos blockPos, BlockState frameBlock, Direction.Axis axis) {
 
         WorldBorder worldBorder = world.getWorldBorder();
         PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(frameBlock.getBlock());
         PortalFrameTester portalFrameTester = link.getFrameTester().createInstanceOfPortalFrameTester();
 
-        int topY = Math.min(world.getMaxBuildHeight(), world.getMinBuildHeight() + world.getLogicalHeight()) - 5;
-        int bottomY = world.getMinBuildHeight() + 5;
+        int topY = Math.min(world.getMaxY(), world.getMinY() + world.getLogicalHeight()) - 5;
+        int bottomY = world.getMinY() + 5;
 
-        if (world.dimension().location().equals(link.dimID)) {
+        if (world.dimension().identifier().equals(link.dimID)) {
             if (link.portalSearchYTop != null)
                 topY = link.portalSearchYTop;
             if (link.portalSearchYBottom != null)

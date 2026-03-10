@@ -2,12 +2,11 @@ package com.benbenlaw.portals.client;
 
 import com.benbenlaw.portals.Portals;
 import com.benbenlaw.portals.block.PortalsBlocks;
-import com.benbenlaw.portals.mixin.client.ChunkRendererRegionAccessor;
 import com.benbenlaw.portals.util.CustomPortalApiRegistry;
 import com.benbenlaw.portals.util.CustomPortalHelper;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.RenderChunkRegion;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,10 +31,5 @@ public class CustomPortalsModClient {
     //    }, PortalsBlocks.CUSTOM_PORTAL.get());
     //}
 
-    @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(
-            () -> ItemBlockRenderTypes.setRenderLayer(PortalsBlocks.CUSTOM_PORTAL.get(), RenderType.translucent())
-        );
-    }
+
 }

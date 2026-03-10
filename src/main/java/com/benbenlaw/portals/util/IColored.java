@@ -1,7 +1,6 @@
 package com.benbenlaw.portals.util;
 
-import com.benbenlaw.portals.mixin.client.ChunkRendererRegionAccessor;
-import com.benbenlaw.portals.mixin.client.LevelSliceAccessor;
+import com.benbenlaw.portals.mixin.client.RenderSectionRegionAccessor;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -28,15 +27,15 @@ public interface IColored {
             Level level = null;
 
             // Vanilla
-            if (tintGetter instanceof ChunkRendererRegionAccessor vanilla) {
+            if (tintGetter instanceof RenderSectionRegionAccessor vanilla) {
                 level = vanilla.getLevel();
             }
             // Sodium
-            else if (ModList.get().isLoaded("sodium")) {
-                if (tintGetter instanceof LevelSliceAccessor sodium) {
-                    level = sodium.getLevel();
-                }
-            }
+            //else if (ModList.get().isLoaded("sodium")) {
+            //    if (tintGetter instanceof LevelSliceAccessor sodium) {
+            //        level = sodium.getLevel();
+            //    }
+            //}
 
             if (level != null) {
                 Block block = CustomPortalHelper.getPortalBase(level, pos);

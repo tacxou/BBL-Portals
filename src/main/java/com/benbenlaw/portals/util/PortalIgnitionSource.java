@@ -2,7 +2,7 @@ package com.benbenlaw.portals.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -36,11 +36,11 @@ public class PortalIgnitionSource {
 
     public SourceType sourceType;
 
-    public ResourceLocation ignitionSourceID;
+    public Identifier ignitionSourceID;
 
     public Player player;
 
-    private PortalIgnitionSource(SourceType sourceType, ResourceLocation ignitionSourceID) {
+    private PortalIgnitionSource(SourceType sourceType, Identifier ignitionSourceID) {
         this.sourceType = sourceType;
         this.ignitionSourceID = ignitionSourceID;
     }
@@ -59,7 +59,7 @@ public class PortalIgnitionSource {
         return new PortalIgnitionSource(SourceType.FLUID, BuiltInRegistries.FLUID.getKey(fluid));
     }
 
-    public static PortalIgnitionSource CustomSource(ResourceLocation ignitionSourceID) {
+    public static PortalIgnitionSource CustomSource(Identifier ignitionSourceID) {
         return new PortalIgnitionSource(SourceType.CUSTOM, ignitionSourceID);
     }
 
@@ -72,7 +72,7 @@ public class PortalIgnitionSource {
     public void withCondition(BiFunction<Level, BlockPos, Boolean> condition) {}
 
     public boolean isWater() {
-        return Optional.of(BuiltInRegistries.FLUID.get(ignitionSourceID))
+        return Optional.of(BuiltInRegistries.FLUID.getValue(ignitionSourceID))
             .filter(
                 a -> a.is(FluidTags.WATER)
             )
@@ -80,7 +80,7 @@ public class PortalIgnitionSource {
     }
 
     public boolean isLava() {
-        return Optional.of(BuiltInRegistries.FLUID.get(ignitionSourceID))
+        return Optional.of(BuiltInRegistries.FLUID.getValue(ignitionSourceID))
             .filter(
                 a -> a.is(FluidTags.LAVA)
             )
@@ -89,14 +89,14 @@ public class PortalIgnitionSource {
 
     public ItemStack getIgnetionItemStack() {
         if (sourceType == SourceType.USEITEM) {
-            return new ItemStack(BuiltInRegistries.ITEM.get(ignitionSourceID));
+            return new ItemStack(BuiltInRegistries.ITEM.getValue(ignitionSourceID));
         }
         return ItemStack.EMPTY;
     }
 
     public ItemStack getFluidIgnitionAsBucket() {
         if (sourceType == SourceType.FLUID) {
-            Fluid fluid = BuiltInRegistries.FLUID.get(ignitionSourceID);
+            Fluid fluid = BuiltInRegistries.FLUID.getValue(ignitionSourceID);
             return fluid.getBucket().getDefaultInstance();
         }
         return ItemStack.EMPTY;
@@ -104,7 +104,7 @@ public class PortalIgnitionSource {
 
     public ItemStack getBlockPlacedAsItemStack() {
         if (sourceType == SourceType.BLOCKPLACED) {
-            return new ItemStack(BuiltInRegistries.BLOCK.get(ignitionSourceID).asItem());
+            return new ItemStack(BuiltInRegistries.BLOCK.getValue(ignitionSourceID).asItem());
         }
         return ItemStack.EMPTY;
     }
