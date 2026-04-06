@@ -8,7 +8,6 @@ import com.benbenlaw.portals.portal.frame.FlatPortalAreaHelper;
 import com.benbenlaw.portals.portal.frame.VanillaPortalAreaHelper;
 import com.benbenlaw.portals.portal.linking.PortalLinkingStorage;
 import com.benbenlaw.portals.util.*;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -153,9 +152,9 @@ public class Portals{
     }
 
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork( () ->
-                ItemBlockRenderTypes.setRenderLayer(PortalsBlocks.CUSTOM_PORTAL.get(), ChunkSectionLayer.TRANSLUCENT)
-        );
+        //event.enqueueWork( () ->
+        //        //ItemBlockRenderTypes.setRenderLayer(PortalsBlocks.CUSTOM_PORTAL.get(), ChunkSectionLayer.TRANSLUCENT)
+        //);
     }
 
     public static Identifier identifier(String path) {

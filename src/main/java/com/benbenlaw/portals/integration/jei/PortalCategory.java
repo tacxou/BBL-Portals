@@ -18,9 +18,8 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -146,7 +145,7 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
     }
 
     @Override
-    public void draw(PortalRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(PortalRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         /*
         PoseStack poseStack = guiGraphics.pose();
         //RenderSystem.enableDepthTest();
@@ -185,6 +184,7 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
     }
 
+    /*
     private void renderNetherPortalLike(BlockState frame, BlockState portal, int width, int height, PoseStack poseStack) {
 
         Minecraft mc = Minecraft.getInstance();
@@ -258,4 +258,6 @@ public class PortalCategory implements IRecipeCategory<PortalRecipe> {
 
         buffer.endBatch();
     }
+
+     */
 }

@@ -1,15 +1,14 @@
 package com.benbenlaw.portals.util;
 
 import com.benbenlaw.portals.mixin.client.RenderSectionRegionAccessor;
-import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
+/*
 public interface IColored {
 
     class BlockColors implements BlockColor {
@@ -46,7 +45,7 @@ public interface IColored {
             return 0xFFFFFF;
         }
 
-        /*
+
 
         @Override
         public int getColor(BlockState state, @Nullable BlockAndTintGetter tintGetter, @Nullable BlockPos pos, int tintIndex) {
@@ -58,7 +57,8 @@ public interface IColored {
             return 0xFFFFFF;
         }
 
-         */
+
 
     }
 }
+*/
