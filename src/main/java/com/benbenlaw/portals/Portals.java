@@ -60,7 +60,6 @@ public class Portals{
         CustomPortalApiRegistry.registerPortalFrameTester(FLATPORTAL_FRAMETESTER, FlatPortalAreaHelper::new);
 
         if (FMLEnvironment.getDist() == Dist.CLIENT) {
-            eventBus.register(new PortalsColorHandler());
             eventBus.addListener(Portals::onClientSetup);
         }
 
