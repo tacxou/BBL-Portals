@@ -21,9 +21,10 @@ public class KubeJSRegister {
                 try {
                     maker.register();
                 } catch (RuntimeException e) {
-                    PortalLink link = CustomPortalBuilder.beginPortal().portalLink;
+                    PortalLink link = maker.builder.portalLink;
+                    ConsoleJS.STARTUP.error("Error registering portal: " + e.getClass().getSimpleName() + ": " + e.getMessage());
                     if (link.block == null) {
-                        ConsoleJS.STARTUP.error("Error registering portal for an unset frame");
+                        ConsoleJS.STARTUP.error("Error registering portal for an unset frame (missing .frameBlock(...) call)");
 
                         // Clear the portal map and return because the block is null, and you can't .toString() it
                         PortalBuilder.createdPortals.clear();

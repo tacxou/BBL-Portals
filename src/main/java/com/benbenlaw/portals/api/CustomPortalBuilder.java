@@ -279,4 +279,23 @@ public class CustomPortalBuilder {
         return this;
     }
 
+    /**
+     * Specify a Velocity (or BungeeCord) backend server name. When set, entering the portal transfers
+     * the player to that server via the "bungeecord:main" plugin message channel instead of performing
+     * a local dimension teleport.
+     */
+    public CustomPortalBuilder setServer(String serverName) {
+        portalLink.targetServer = serverName;
+        return this;
+    }
+
+    /**
+     * Set a per-player cooldown (in seconds) between portal uses. While on cooldown, the player is
+     * shown an action-bar message and pushed away from the portal.
+     */
+    public CustomPortalBuilder setCooldown(int seconds) {
+        portalLink.cooldownTicks = Math.max(0, seconds) * 20;
+        return this;
+    }
+
 }

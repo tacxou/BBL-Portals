@@ -119,6 +119,18 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
+        @Info("Transfer the player to another Velocity backend server by name when the portal is used. Requires the server to sit behind a Velocity or BungeeCord proxy.")
+        public PortalMaker setServer(String serverName) {
+            this.builder.setServer(serverName);
+            return this;
+        }
+
+        @Info("Set a per-player cooldown in seconds between portal uses. While on cooldown the player is pushed away and shown an action-bar message.")
+        public PortalMaker setCooldown(int seconds) {
+            this.builder.setCooldown(seconds);
+            return this;
+        }
+
         @Info("(Optional) Set the RGB color for the portal's tint")
         public PortalMaker tint(int r, int g, int b) {
             this.builder.tintColor(r, g, b);

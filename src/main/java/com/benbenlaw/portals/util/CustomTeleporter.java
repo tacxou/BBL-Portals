@@ -1,14 +1,18 @@
 package com.benbenlaw.portals.util;
 
 import com.benbenlaw.portals.Portals;
+import com.benbenlaw.portals.integration.velocity.VelocityBridge;
 import com.benbenlaw.portals.portal.PortalPlacer;
 import com.benbenlaw.portals.portal.frame.PortalFrameTester;
 import net.minecraft.BlockUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -32,6 +36,28 @@ public class CustomTeleporter {
             return null;
         if (link.getBeforeTPEvent().execute(entity) == ShouldTeleport.CANCEL_TP)
             return null;
+        if (entity instanceof ServerPlayer player && link.cooldownTicks > 0) {
+            long now = player.level().getGameTime();
+            Long last = link.lastUsedTick.get(player.getUUID());
+            if (last != null && now - last < link.cooldownTicks) {
+                long remainingSec = ((link.cooldownTicks - (now - last)) + 19) / 20;
+                player.displayClientMessage(
+                        Component.literal("Cooldown actif: " + remainingSec + "s").withStyle(ChatFormatting.RED),
+                        true
+                );
+                Vec3 look = player.getLookAngle();
+                player.setDeltaMovement(-look.x * 0.8, 0.4, -look.z * 0.8);
+                player.hurtMarked = true;
+                return null;
+            }
+            link.lastUsedTick.put(player.getUUID(), now);
+        }
+        if (link.targetServer != null) {
+            if (entity instanceof ServerPlayer player) {
+                VelocityBridge.sendPlayerToServer(player, link.targetServer);
+            }
+            return null;
+        }
         ResourceKey<Level> destKey = world.dimension() == Portals.DIMENSIONS.get(
             link.dimID
         ) ? Portals.DIMENSIONS.get(link.returnDimID) : Portals.DIMENSIONS.get(link.dimID);

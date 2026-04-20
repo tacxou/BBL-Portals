@@ -64,10 +64,12 @@ public class CustomPortalApiRegistry {
             throw new RuntimeException("Portal block must not be null");
         if (link.portalIgnitionSource == null)
             throw new RuntimeException("Portal ignition source must not be null");
-        if (link.dimID == null)
-            throw new RuntimeException("Dimension is null");
-        if (!Portals.DIMENSIONS.isEmpty() && !Portals.DIMENSIONS.containsKey(link.dimID))
-            throw new RuntimeException("Dimension not found");
+        if (link.targetServer == null) {
+            if (link.dimID == null)
+                throw new RuntimeException("Dimension is null");
+            if (!Portals.DIMENSIONS.isEmpty() && !Portals.DIMENSIONS.containsKey(link.dimID))
+                throw new RuntimeException("Dimension not found");
+        }
         if (PortalsBlocks.CUSTOM_PORTAL.get() == null)
             throw new RuntimeException("Built-in CustomPortalBlock is null");
 

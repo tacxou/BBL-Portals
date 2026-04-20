@@ -14,6 +14,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -46,6 +49,12 @@ public class PortalLink {
     public Integer returnPortalSearchYBottom, returnPortalSearchYTop;
 
     public ResourceLocation portalFrameTester = Portals.VANILLAPORTAL_FRAMETESTER;
+
+    public String targetServer = null;
+
+    public int cooldownTicks = 0;
+
+    public final Map<UUID, Long> lastUsedTick = new ConcurrentHashMap<>();
 
     private Consumer<Entity> postTPEvent;
 
