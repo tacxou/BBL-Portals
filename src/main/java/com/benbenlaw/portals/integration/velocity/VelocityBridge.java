@@ -158,7 +158,7 @@ public final class VelocityBridge {
             BlockPos portalCreationPos = requestedPos;
             if (payload.allowPortalCreation()) {
                 portalCreationPos = adaptToWaterSurface(level, requestedPos);
-                freezeWaterWithBlueIce(level, portalCreationPos);
+                buildSafetyPlatform(level, portalCreationPos);
             }
             Optional<BlockUtil.FoundRectangle> created = PortalPlacer.createDestinationPortal(
                     level,
@@ -280,7 +280,8 @@ public final class VelocityBridge {
         return new BlockPos(x, topWaterY + 1, z);
     }
 
-    private static void freezeWaterWithBlueIce(ServerLevel level, BlockPos center) {
+    private static void buildSafetyPlatform(ServerLevel level, BlockPos center) {
+        Block platformBlock = getPlatformBlockForDimension(level);
         int platformRadius = 6;
         int depth = 2;
 
@@ -292,10 +293,20 @@ public final class VelocityBridge {
 
                 for (int d = 1; d <= depth; d++) {
                     BlockPos current = center.offset(dx, -d, dz);
-                    level.setBlockAndUpdate(current, Blocks.BLUE_ICE.defaultBlockState());
+                    level.setBlockAndUpdate(current, platformBlock.defaultBlockState());
                 }
             }
         }
+    }
+
+    private static Block getPlatformBlockForDimension(ServerLevel level) {
+        if (level.dimension().equals(Level.NETHER)) {
+            return Blocks.NETHERRACK;
+        }
+        if (level.dimension().equals(Level.END)) {
+            return Blocks.END_STONE;
+        }
+        return Blocks.BLUE_ICE;
     }
 
     @SubscribeEvent
