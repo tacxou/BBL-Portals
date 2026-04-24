@@ -24,11 +24,25 @@ public final class VelocityPayloadRegistration {
                 VelocityFlushWaypointsPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(VelocityClientWaypointFlushCompat::flushClientWaypointsAndAck)
         );
+        registrar.playToClient(
+                VelocityTransferSyncPayload.TYPE,
+                VelocityTransferSyncPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> VelocityClientWaypointFlushCompat.cacheTransfer(payload))
+        );
         registrar.playToServer(
                 VelocityFlushAckPayload.TYPE,
                 VelocityFlushAckPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() ->
                         VelocityBridge.markClientWaypointsFlushed(context.player().getUUID()))
+        );
+        registrar.playToServer(
+                VelocityTransferArrivalPayload.TYPE,
+                VelocityTransferArrivalPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                        VelocityBridge.handleInterServerArrival(serverPlayer, payload);
+                    }
+                })
         );
     }
 }

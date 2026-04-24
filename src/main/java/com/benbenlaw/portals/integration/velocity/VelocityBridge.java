@@ -1,13 +1,29 @@
 package com.benbenlaw.portals.integration.velocity;
 
 import com.benbenlaw.portals.Portals;
+import com.benbenlaw.portals.portal.PortalPlacer;
+import com.benbenlaw.portals.portal.frame.PortalFrameTester;
 import com.benbenlaw.portals.integration.ftbchunks.FtbChunksLogoutCompat;
+import com.benbenlaw.portals.util.CustomPortalApiRegistry;
+import com.benbenlaw.portals.util.PortalLink;
+import net.minecraft.BlockUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Optional;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +37,38 @@ public final class VelocityBridge {
     private VelocityBridge() {}
 
     public static void sendPlayerToServer(ServerPlayer player, String serverName) {
+        if (player == null) {
+            return;
+        }
+        BlockPos playerPos = player.blockPosition();
+        Block frameBlock = player.level().getBlockState(playerPos.below()).getBlock();
+        sendPlayerToServer(player, serverName, playerPos, frameBlock, Direction.Axis.X);
+    }
+
+    public static void sendPlayerToServer(ServerPlayer player, String serverName, BlockPos portalPos, Block portalBase, Direction.Axis portalAxis) {
         if (player == null || serverName == null || serverName.isEmpty()) {
             Portals.LOGGER.warn("Transfert Velocity ignoré: player ou serverName invalide.");
             return;
         }
         try {
-            PENDING_TRANSFERS.put(player.getUUID(), new PendingTransfer(serverName, ACK_TIMEOUT_TICKS));
+            ResourceLocation frameBlockId = BuiltInRegistries.BLOCK.getKey(portalBase);
+            PortalLink sourceLink = CustomPortalApiRegistry.getPortalLinkFromBase(portalBase);
+            boolean allowPortalCreation = sourceLink != null && sourceLink.allowInterServerPortalCreation;
+            PENDING_TRANSFERS.put(
+                    player.getUUID(),
+                    new PendingTransfer(
+                            serverName,
+                            ACK_TIMEOUT_TICKS
+                    )
+            );
+            PacketDistributor.sendToPlayer(player, new VelocityTransferSyncPayload(
+                    serverName,
+                    portalPos.asLong(),
+                    frameBlockId,
+                    portalAxis,
+                    player.level().dimension().location(),
+                    allowPortalCreation
+            ));
             PacketDistributor.sendToPlayer(player, VelocityFlushWaypointsPayload.INSTANCE);
             Portals.LOGGER.info(
                     "Flush waypoints demandé pour {} avant transfert vers {} (timeout: {} ticks).",
@@ -45,6 +87,135 @@ public final class VelocityBridge {
         if (transfer != null) {
             transfer.clientFlushed = true;
         }
+    }
+
+    public static void handleInterServerArrival(ServerPlayer player, VelocityTransferArrivalPayload payload) {
+        if (player == null) {
+            return;
+        }
+
+        ResourceKey<Level> targetDimension = ResourceKey.create(
+                net.minecraft.core.registries.Registries.DIMENSION,
+                payload.dimensionId()
+        );
+        ServerLevel level = player.server.getLevel(targetDimension);
+        if (level == null) {
+            level = player.serverLevel();
+        }
+
+        Block frameBlock = BuiltInRegistries.BLOCK.getOptional(payload.frameBlockId()).orElse(null);
+        if (frameBlock == null) {
+            Portals.LOGGER.warn("Transfert inter-serveur: bloc de frame introuvable {}.", payload.frameBlockId());
+            return;
+        }
+
+        PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(frameBlock);
+        if (link == null) {
+            Portals.LOGGER.warn("Transfert inter-serveur: aucun PortalLink pour {}.", payload.frameBlockId());
+            return;
+        }
+
+        BlockPos requestedPos = BlockPos.of(payload.portalPos());
+        BlockPos targetPortalPos = requestedPos;
+        GlobalPos linked = Portals.PORTAL_LINKING_STORAGE.getDestination(requestedPos, level.dimension());
+        if (linked != null && linked.dimension().equals(level.dimension())) {
+            targetPortalPos = linked.pos();
+        }
+
+        BlockUtil.FoundRectangle rectangle = findExistingPortalNear(level, link, frameBlock, targetPortalPos, payload.axis());
+        if (rectangle == null && !targetPortalPos.equals(requestedPos)) {
+            rectangle = findExistingPortalNear(level, link, frameBlock, requestedPos, payload.axis());
+        }
+
+        if (rectangle == null && !payload.allowPortalCreation()) {
+            Portals.LOGGER.info(
+                    "Transfert inter-serveur: création désactivée pour {} (frame {}).",
+                    player.getGameProfile().getName(),
+                    payload.frameBlockId()
+            );
+            Portals.LOGGER.info("Transfert inter-serveur: aucun portail existant trouvé près de {}.", requestedPos);
+            return;
+        }
+
+        if (rectangle == null) {
+            Optional<BlockUtil.FoundRectangle> created = PortalPlacer.createDestinationPortal(
+                    level,
+                    requestedPos,
+                    frameBlock.defaultBlockState(),
+                    payload.axis()
+            );
+            if (created.isEmpty()) {
+                Portals.LOGGER.warn("Transfert inter-serveur: impossible de créer le portail pour {}.", player.getGameProfile().getName());
+                return;
+            }
+            rectangle = created.get();
+        }
+
+        if (!rectangle.minCorner.equals(requestedPos)) {
+            Portals.PORTAL_LINKING_STORAGE.createLink(
+                    requestedPos,
+                    level.dimension(),
+                    rectangle.minCorner,
+                    level.dimension()
+            );
+        }
+
+        Vec3 destination = new Vec3(
+                rectangle.minCorner.getX() + 0.5D,
+                rectangle.minCorner.getY() + 1D,
+                rectangle.minCorner.getZ() + 0.5D
+        );
+        player.teleportTo(level, destination.x, destination.y, destination.z, player.getYRot(), player.getXRot());
+        Portals.LOGGER.info(
+                "Transfert inter-serveur: portail synchronisé pour {} vers {}.",
+                player.getGameProfile().getName(),
+                destination
+        );
+    }
+
+    private static BlockUtil.FoundRectangle findExistingPortalNear(
+            ServerLevel level,
+            PortalLink link,
+            Block frameBlock,
+            BlockPos center,
+            Direction.Axis preferredAxis
+    ) {
+        Direction.Axis secondaryAxis = preferredAxis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+        for (int radius = 0; radius <= 12; radius++) {
+            for (BlockPos.MutableBlockPos mutable : BlockPos.spiralAround(center, radius, Direction.EAST, Direction.SOUTH)) {
+                for (int y = center.getY() + 4; y >= center.getY() - 4; y--) {
+                    BlockPos candidate = mutable.immutable().atY(y);
+                    BlockUtil.FoundRectangle rect = validatePortalAt(level, link, frameBlock, candidate, preferredAxis);
+                    if (rect != null) {
+                        return rect;
+                    }
+                    rect = validatePortalAt(level, link, frameBlock, candidate, secondaryAxis);
+                    if (rect != null) {
+                        return rect;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static BlockUtil.FoundRectangle validatePortalAt(
+            ServerLevel level,
+            PortalLink link,
+            Block frameBlock,
+            BlockPos pos,
+            Direction.Axis axis
+    ) {
+        PortalFrameTester tester = link.getFrameTester()
+                .createInstanceOfPortalFrameTester()
+                .init(level, pos, axis, frameBlock);
+        if (!tester.isValidFrame()) {
+            return null;
+        }
+        if (!tester.isAlreadyLitPortalFrame()) {
+            tester.lightPortal(frameBlock);
+        }
+        return tester.getRectangle();
     }
 
     @SubscribeEvent
@@ -87,7 +258,10 @@ public final class VelocityBridge {
         private int remainingTicks;
         private boolean clientFlushed;
 
-        private PendingTransfer(String serverName, int remainingTicks) {
+        private PendingTransfer(
+                String serverName,
+                int remainingTicks
+        ) {
             this.serverName = serverName;
             this.remainingTicks = remainingTicks;
             this.clientFlushed = false;

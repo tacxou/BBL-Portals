@@ -55,7 +55,11 @@ public class CustomTeleporter {
         if (link.targetServer != null) {
             if (entity instanceof ServerPlayer player) {
                 Portals.LOGGER.warn("DEBUG PORTALS: portail inter-serveur déclenché pour {} vers {}.", player.getGameProfile().getName(), link.targetServer);
-                VelocityBridge.sendPlayerToServer(player, link.targetServer);
+                Direction.Axis portalAxis = CustomPortalHelper.getAxisFrom(world.getBlockState(portalPos));
+                if (portalAxis == null) {
+                    portalAxis = Direction.Axis.X;
+                }
+                VelocityBridge.sendPlayerToServer(player, link.targetServer, portalPos, portalBase, portalAxis);
             }
             return null;
         }

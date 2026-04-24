@@ -53,6 +53,8 @@ public class PortalLink {
 
     public String targetServer = null;
 
+    public boolean allowInterServerPortalCreation = false;
+
     public int cooldownTicks = 0;
 
     public final Map<UUID, Long> lastUsedTick = new ConcurrentHashMap<>();

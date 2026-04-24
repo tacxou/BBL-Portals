@@ -125,6 +125,12 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
+        @Info("Allow automatic portal creation on inter-server arrival. Default is false.")
+        public PortalMaker allowInterServerPortalCreation(boolean allowCreation) {
+            this.builder.allowInterServerPortalCreation(allowCreation);
+            return this;
+        }
+
         @Info("Set a per-player cooldown in seconds between portal uses. While on cooldown the player is pushed away and shown an action-bar message.")
         public PortalMaker setCooldown(int seconds) {
             this.builder.setCooldown(seconds);

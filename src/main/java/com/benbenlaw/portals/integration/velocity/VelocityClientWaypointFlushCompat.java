@@ -10,8 +10,25 @@ import java.util.Optional;
 public final class VelocityClientWaypointFlushCompat {
 
     private static final String FTB_CHUNKS_MOD = "ftbchunks";
+    private static VelocityTransferArrivalPayload pendingArrivalPayload;
 
     private VelocityClientWaypointFlushCompat() {}
+
+    public static void cacheTransfer(VelocityTransferSyncPayload payload) {
+        pendingArrivalPayload = new VelocityTransferArrivalPayload(
+                payload.portalPos(),
+                payload.frameBlockId(),
+                payload.axis(),
+                payload.dimensionId(),
+                payload.allowPortalCreation()
+        );
+    }
+
+    public static VelocityTransferArrivalPayload consumePendingArrivalPayload() {
+        VelocityTransferArrivalPayload payload = pendingArrivalPayload;
+        pendingArrivalPayload = null;
+        return payload;
+    }
 
     public static void flushClientWaypointsAndAck() {
         if (!ModList.get().isLoaded(FTB_CHUNKS_MOD)) {

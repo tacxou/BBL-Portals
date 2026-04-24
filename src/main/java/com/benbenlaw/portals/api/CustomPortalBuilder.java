@@ -290,6 +290,15 @@ public class CustomPortalBuilder {
     }
 
     /**
+     * Allow (or deny) automatic portal creation on the target server during an inter-server transfer.
+     * If false, arrival only reuses an existing portal (or linked location) and never creates a new one.
+     */
+    public CustomPortalBuilder allowInterServerPortalCreation(boolean allowCreation) {
+        portalLink.allowInterServerPortalCreation = allowCreation;
+        return this;
+    }
+
+    /**
      * Set a per-player cooldown (in seconds) between portal uses. While on cooldown, the player is
      * shown an action-bar message and pushed away from the portal.
      */
