@@ -131,6 +131,12 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
+        @Info("Set a fixed destination position. The forward teleport ignores portal-pair linking and drops the entity at these coordinates. The return trip still uses normal linking.")
+        public PortalMaker setDestinationPos(double x, double y, double z) {
+            this.builder.setDestinationPos(x, y, z);
+            return this;
+        }
+
         @Info("(Optional) Set the RGB color for the portal's tint")
         public PortalMaker tint(int r, int g, int b) {
             this.builder.tintColor(r, g, b);

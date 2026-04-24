@@ -54,6 +54,7 @@ public class CustomTeleporter {
         }
         if (link.targetServer != null) {
             if (entity instanceof ServerPlayer player) {
+                Portals.LOGGER.warn("DEBUG PORTALS: portail inter-serveur déclenché pour {} vers {}.", player.getGameProfile().getName(), link.targetServer);
                 VelocityBridge.sendPlayerToServer(player, link.targetServer);
             }
             return null;
@@ -66,6 +67,17 @@ public class CustomTeleporter {
             return null;
         if (!entity.canUsePortal(false))
             return null;
+
+        if (link.destinationPos != null && destKey == Portals.DIMENSIONS.get(link.dimID)) {
+            return new DimensionTransition(
+                    destination,
+                    link.destinationPos,
+                    entity.getDeltaMovement(),
+                    entity.getYRot(),
+                    entity.getXRot(),
+                    DimensionTransition.DO_NOTHING
+            );
+        }
 
         return customTPTarget(destination, entity, portalPos, portalBase, link.getFrameTester());
     }

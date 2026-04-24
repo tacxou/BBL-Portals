@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +56,8 @@ public class PortalLink {
     public int cooldownTicks = 0;
 
     public final Map<UUID, Long> lastUsedTick = new ConcurrentHashMap<>();
+
+    public Vec3 destinationPos = null;
 
     private Consumer<Entity> postTPEvent;
 

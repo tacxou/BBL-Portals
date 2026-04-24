@@ -298,4 +298,14 @@ public class CustomPortalBuilder {
         return this;
     }
 
+    /**
+     * Set a fixed destination position for the forward teleport (from returnDim to destDim).
+     * When set, the portal ignores the paired-portal linking logic on the forward trip and
+     * drops the entity at the exact coordinates given. The return trip still uses normal linking.
+     */
+    public CustomPortalBuilder setDestinationPos(double x, double y, double z) {
+        portalLink.destinationPos = new net.minecraft.world.phys.Vec3(x, y, z);
+        return this;
+    }
+
 }
