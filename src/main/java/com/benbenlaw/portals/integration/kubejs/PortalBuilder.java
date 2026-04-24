@@ -119,6 +119,12 @@ public class PortalBuilder implements KubeStartupEvent {
             return this;
         }
 
+        @Info("Set the destination dimension to use (alias of setDestination). Also respected when setServer is configured.")
+        public PortalMaker setDimension(ResourceLocation dimension) {
+            this.builder.setDimension(dimension);
+            return this;
+        }
+
         @Info("Transfer the player to another Velocity backend server by name when the portal is used. Requires the server to sit behind a Velocity or BungeeCord proxy.")
         public PortalMaker setServer(String serverName) {
             this.builder.setServer(serverName);

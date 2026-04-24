@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -52,6 +53,10 @@ public class CustomTeleporter {
             }
             link.lastUsedTick.put(player.getUUID(), now);
         }
+        ResourceKey<Level> primaryDestKey = Portals.DIMENSIONS.get(link.dimID);
+        ResourceKey<Level> returnDestKey = Portals.DIMENSIONS.get(link.returnDimID);
+        ResourceKey<Level> destKey = world.dimension() == primaryDestKey ? returnDestKey : primaryDestKey;
+
         if (link.targetServer != null) {
             if (entity instanceof ServerPlayer player) {
                 Portals.LOGGER.warn("DEBUG PORTALS: portail inter-serveur déclenché pour {} vers {}.", player.getGameProfile().getName(), link.targetServer);
@@ -66,13 +71,11 @@ public class CustomTeleporter {
                 if (tester.isValidFrame()) {
                     stablePortalPos = tester.getRectangle().minCorner;
                 }
-                VelocityBridge.sendPlayerToServer(player, link.targetServer, stablePortalPos, portalBase, portalAxis);
+                ResourceLocation targetDimensionId = destKey != null ? destKey.location() : player.level().dimension().location();
+                VelocityBridge.sendPlayerToServer(player, link.targetServer, stablePortalPos, portalBase, portalAxis, targetDimensionId);
             }
             return null;
         }
-        ResourceKey<Level> destKey = world.dimension() == Portals.DIMENSIONS.get(
-            link.dimID
-        ) ? Portals.DIMENSIONS.get(link.returnDimID) : Portals.DIMENSIONS.get(link.dimID);
         ServerLevel destination = ((ServerLevel) world).getServer().getLevel(destKey);
         if (destination == null)
             return null;

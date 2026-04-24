@@ -16,7 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -42,10 +45,21 @@ public final class VelocityBridge {
         }
         BlockPos playerPos = player.blockPosition();
         Block frameBlock = player.level().getBlockState(playerPos.below()).getBlock();
-        sendPlayerToServer(player, serverName, playerPos, frameBlock, Direction.Axis.X);
+        sendPlayerToServer(player, serverName, playerPos, frameBlock, Direction.Axis.X, player.level().dimension().location());
     }
 
     public static void sendPlayerToServer(ServerPlayer player, String serverName, BlockPos portalPos, Block portalBase, Direction.Axis portalAxis) {
+        sendPlayerToServer(player, serverName, portalPos, portalBase, portalAxis, player.level().dimension().location());
+    }
+
+    public static void sendPlayerToServer(
+            ServerPlayer player,
+            String serverName,
+            BlockPos portalPos,
+            Block portalBase,
+            Direction.Axis portalAxis,
+            ResourceLocation targetDimensionId
+    ) {
         if (player == null || serverName == null || serverName.isEmpty()) {
             Portals.LOGGER.warn("Transfert Velocity ignoré: player ou serverName invalide.");
             return;
@@ -66,7 +80,7 @@ public final class VelocityBridge {
                     portalPos.asLong(),
                     frameBlockId,
                     portalAxis,
-                    player.level().dimension().location(),
+                    targetDimensionId != null ? targetDimensionId : player.level().dimension().location(),
                     allowPortalCreation
             ));
             PacketDistributor.sendToPlayer(player, VelocityFlushWaypointsPayload.INSTANCE);
@@ -116,6 +130,9 @@ public final class VelocityBridge {
         }
 
         BlockPos requestedPos = BlockPos.of(payload.portalPos());
+        if (level.dimension().equals(Level.END)) {
+            requestedPos = dragonIslandPortalPos(level);
+        }
         BlockPos targetPortalPos = requestedPos;
         GlobalPos linked = Portals.PORTAL_LINKING_STORAGE.getDestination(requestedPos, level.dimension());
         if (linked != null && linked.dimension().equals(level.dimension())) {
@@ -138,9 +155,14 @@ public final class VelocityBridge {
         }
 
         if (rectangle == null) {
+            BlockPos portalCreationPos = requestedPos;
+            if (payload.allowPortalCreation()) {
+                portalCreationPos = adaptToWaterSurface(level, requestedPos);
+                freezeWaterWithBlueIce(level, portalCreationPos);
+            }
             Optional<BlockUtil.FoundRectangle> created = PortalPlacer.createDestinationPortal(
                     level,
-                    requestedPos,
+                    portalCreationPos,
                     frameBlock.defaultBlockState(),
                     payload.axis()
             );
@@ -171,6 +193,12 @@ public final class VelocityBridge {
                 player.getGameProfile().getName(),
                 destination
         );
+    }
+
+    private static BlockPos dragonIslandPortalPos(ServerLevel level) {
+        BlockPos base = ServerLevel.END_SPAWN_POINT;
+        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, base.getX(), base.getZ());
+        return new BlockPos(base.getX(), Math.max(y, base.getY()), base.getZ());
     }
 
     private static BlockUtil.FoundRectangle findExistingPortalNear(
@@ -216,6 +244,58 @@ public final class VelocityBridge {
             tester.lightPortal(frameBlock);
         }
         return tester.getRectangle();
+    }
+
+    private static BlockPos adaptToWaterSurface(ServerLevel level, BlockPos pos) {
+        int x = pos.getX();
+        int z = pos.getZ();
+        int worldSurfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+        int minY = level.getMinBuildHeight();
+        if (worldSurfaceY < minY) {
+            return pos;
+        }
+
+        int firstWaterY = Integer.MIN_VALUE;
+        for (int y = worldSurfaceY; y >= minY; y--) {
+            BlockPos checkPos = new BlockPos(x, y, z);
+            if (level.getBlockState(checkPos).getFluidState().is(Fluids.WATER)) {
+                firstWaterY = y;
+                break;
+            }
+        }
+
+        if (firstWaterY == Integer.MIN_VALUE) {
+            return pos;
+        }
+
+        int topWaterY = firstWaterY;
+        while (topWaterY + 1 <= worldSurfaceY) {
+            BlockPos above = new BlockPos(x, topWaterY + 1, z);
+            if (!level.getBlockState(above).getFluidState().is(Fluids.WATER)) {
+                break;
+            }
+            topWaterY++;
+        }
+
+        return new BlockPos(x, topWaterY + 1, z);
+    }
+
+    private static void freezeWaterWithBlueIce(ServerLevel level, BlockPos center) {
+        int platformRadius = 6;
+        int depth = 2;
+
+        for (int dx = -platformRadius; dx <= platformRadius; dx++) {
+            for (int dz = -platformRadius; dz <= platformRadius; dz++) {
+                if (dx * dx + dz * dz > platformRadius * platformRadius) {
+                    continue;
+                }
+
+                for (int d = 1; d <= depth; d++) {
+                    BlockPos current = center.offset(dx, -d, dz);
+                    level.setBlockAndUpdate(current, Blocks.BLUE_ICE.defaultBlockState());
+                }
+            }
+        }
     }
 
     @SubscribeEvent

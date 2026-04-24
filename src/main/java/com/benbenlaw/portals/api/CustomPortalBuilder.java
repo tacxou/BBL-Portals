@@ -290,6 +290,14 @@ public class CustomPortalBuilder {
     }
 
     /**
+     * Alias for {@link #destDimID(ResourceLocation)} for scripting APIs that expose "setDimension".
+     * This destination is also used for inter-server transfers when {@link #setServer(String)} is set.
+     */
+    public CustomPortalBuilder setDimension(ResourceLocation dimension) {
+        return destDimID(dimension);
+    }
+
+    /**
      * Allow (or deny) automatic portal creation on the target server during an inter-server transfer.
      * If false, arrival only reuses an existing portal (or linked location) and never creates a new one.
      */
