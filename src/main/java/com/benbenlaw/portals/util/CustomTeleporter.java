@@ -59,7 +59,14 @@ public class CustomTeleporter {
                 if (portalAxis == null) {
                     portalAxis = Direction.Axis.X;
                 }
-                VelocityBridge.sendPlayerToServer(player, link.targetServer, portalPos, portalBase, portalAxis);
+                BlockPos stablePortalPos = portalPos;
+                PortalFrameTester tester = link.getFrameTester()
+                        .createInstanceOfPortalFrameTester()
+                        .init(world, portalPos, portalAxis, portalBase);
+                if (tester.isValidFrame()) {
+                    stablePortalPos = tester.getRectangle().minCorner;
+                }
+                VelocityBridge.sendPlayerToServer(player, link.targetServer, stablePortalPos, portalBase, portalAxis);
             }
             return null;
         }
