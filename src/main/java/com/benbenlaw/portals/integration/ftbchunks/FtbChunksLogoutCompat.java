@@ -34,6 +34,14 @@ public final class FtbChunksLogoutCompat {
         invokeFtbChunksLoggedOut(player);
     }
 
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        syncForLogin(player);
+    }
+
     public static void syncForTransfer(ServerPlayer player) {
         if (player == null) {
             Portals.LOGGER.warn("DEBUG PORTALS: syncForTransfer ignoré, player null.");
@@ -45,6 +53,25 @@ public final class FtbChunksLogoutCompat {
         }
         Portals.LOGGER.warn("DEBUG PORTALS: transfert détecté pour {}, tentative de synchro FTB Chunks.", player.getGameProfile().getName());
         invokeFtbChunksLoggedOut(player);
+    }
+
+    public static void syncForLogin(ServerPlayer player) {
+        if (player == null || !ModList.get().isLoaded(FTB_CHUNKS_MOD)) {
+            return;
+        }
+        try {
+            Class<?> apiClass = Class.forName("dev.ftb.mods.ftbchunks.api.FTBChunksAPI");
+            Object api = apiClass.getMethod("api").invoke(null);
+            Object manager = api.getClass().getMethod("getManager").invoke(api);
+            Object teamData = manager.getClass().getMethod("getOrCreateData", ServerPlayer.class).invoke(manager, player);
+            Method syncChunksToPlayer = teamData.getClass().getMethod("syncChunksToPlayer", ServerPlayer.class);
+            syncChunksToPlayer.invoke(teamData, player);
+            Portals.LOGGER.info("Synchro FTB Chunks forcée au login pour {}.", player.getGameProfile().getName());
+        } catch (ReflectiveOperationException e) {
+            Portals.LOGGER.warn("Impossible de forcer la synchro FTB Chunks au login pour {} : {}", player.getGameProfile().getName(), e.toString());
+        } catch (Throwable t) {
+            Portals.LOGGER.warn("Erreur inattendue pendant la synchro FTB Chunks au login de {}", player.getGameProfile().getName(), t);
+        }
     }
 
     private static void invokeFtbChunksLoggedOut(ServerPlayer player) {
