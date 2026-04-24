@@ -19,5 +19,16 @@ public final class VelocityPayloadRegistration {
                 VelocityConnectPayload.STREAM_CODEC,
                 (payload, context) -> {}
         );
+        registrar.playToClient(
+                VelocityFlushWaypointsPayload.TYPE,
+                VelocityFlushWaypointsPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(VelocityClientWaypointFlushCompat::flushClientWaypointsAndAck)
+        );
+        registrar.playToServer(
+                VelocityFlushAckPayload.TYPE,
+                VelocityFlushAckPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() ->
+                        VelocityBridge.markClientWaypointsFlushed(context.player().getUUID()))
+        );
     }
 }
